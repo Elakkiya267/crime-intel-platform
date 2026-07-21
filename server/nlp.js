@@ -7,7 +7,7 @@ import { getCatalystApp } from './db/catalyst-db.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const GROQ_API_KEY = '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';
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const GROQ_COMPLETIONS_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // System prompt instructing Llama to translate natural language questions to SQLite SELECT statements

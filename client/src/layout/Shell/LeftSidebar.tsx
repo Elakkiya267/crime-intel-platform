@@ -9,12 +9,17 @@ import {
   Settings,
   HelpCircle,
   User,
+  X
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 type NavItem = { to: string; label: string; icon: React.ReactNode };
 
-export default function LeftSidebar() {
+interface LeftSidebarProps {
+  onCloseMobile?: () => void;
+}
+
+export default function LeftSidebar({ onCloseMobile }: LeftSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const items: NavItem[] = useMemo(
@@ -36,13 +41,13 @@ export default function LeftSidebar() {
   return (
     <aside
       className={
-        'relative flex h-full flex-col border-r border-[#E2E8F0] bg-white transition-[width] duration-200 ' +
-        (collapsed ? 'w-[72px]' : 'w-[270px]')
+        'relative flex h-full flex-col border-r border-[#E2E8F0] bg-white transition-[width] duration-200 shadow-lg md:shadow-none ' +
+        (collapsed ? 'w-[72px]' : 'w-[260px]')
       }
     >
       <div className="flex h-[64px] items-center justify-between px-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2">
-          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-[#E2E8F0] bg-white shadow-sm shrink-0">
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#E2E8F0] bg-white shadow-sm shrink-0">
             <img src="./logo.jpg" alt="KSP Logo" className="h-full w-full object-cover" />
           </div>
           {!collapsed && (
@@ -52,13 +57,25 @@ export default function LeftSidebar() {
             </div>
           )}
         </div>
-        <button
-          className="rounded-lg p-1.5 hover:bg-slate-50 text-slate-400 hover:text-slate-600"
-          onClick={() => setCollapsed((v) => !v)}
-          aria-label="Toggle sidebar"
-        >
-          <span className="text-xs font-bold">{collapsed ? '→' : '←'}</span>
-        </button>
+
+        <div className="flex items-center gap-1">
+          <button
+            className="hidden md:flex rounded-lg p-1.5 hover:bg-slate-50 text-slate-400 hover:text-slate-600"
+            onClick={() => setCollapsed((v) => !v)}
+            aria-label="Toggle sidebar"
+          >
+            <span className="text-xs font-bold">{collapsed ? '→' : '←'}</span>
+          </button>
+
+          {onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="flex md:hidden rounded-lg p-1.5 hover:bg-slate-50 text-slate-500"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <nav className="flex-1 overflow-auto px-2 py-3">
@@ -67,6 +84,7 @@ export default function LeftSidebar() {
             <NavLink
               key={it.to}
               to={it.to}
+              onClick={onCloseMobile}
               className={({ isActive }) =>
                 'group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition ' +
                 (isActive
@@ -80,10 +98,6 @@ export default function LeftSidebar() {
           ))}
         </div>
       </nav>
-
-      <div className="p-3">
-      </div>
     </aside>
   );
 }
-

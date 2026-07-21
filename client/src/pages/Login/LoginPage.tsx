@@ -179,15 +179,9 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Demo hints */}
-        <div className="rounded-xl border border-indigo-50 bg-indigo-50/20 p-3.5 text-[11px] text-slate-500 leading-normal font-semibold space-y-1">
-          <div className="flex items-center gap-1 text-indigo-700 font-bold">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>MongoDB Seeding Active</span>
-          </div>
-          <div>For instant testing, use seed account credentials:</div>
-          <div>• **Investigator:** <code>investigator@ksp.gov.in</code> / <code>investigator123</code></div>
-          <div>• **Supervisor:** <code>supervisor@ksp.gov.in</code> / <code>supervisor123</code></div>
+        {/* Demo credentials hint */}
+        <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-[11px] text-slate-500 font-medium text-center">
+          Official Karnataka State Police Security Portal. Authorized personnel only.
         </div>
       </div>
     </div>

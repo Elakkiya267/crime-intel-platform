@@ -178,14 +178,14 @@ export default function HotspotsPage() {
           </div>
         </div>
 
-        {/* Sociological Correlation Panel */}
-        <div className="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-2 text-xs">
-          <div className="flex items-center gap-1.5 text-indigo-700 font-bold">
-            <Sparkles className="h-4 w-4" />
-            <span>Socio-Demographic Heuristic</span>
+        {/* Tactical Patrol Directive Panel */}
+        <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 space-y-2 text-xs">
+          <div className="flex items-center gap-1.5 text-slate-700 font-bold">
+            <ShieldAlert className="h-4 w-4 text-primary-600" />
+            <span>Patrol Directive & Hotspot Protocol</span>
           </div>
-          <p className="text-slate-600 leading-relaxed">
-            Data models show high-density hotspots in Bengaluru Urban correlate directly with tech hubs and economic migration patterns. High unemployment among educated youth drives regional cyber fraud concentrations.
+          <p className="text-slate-500 leading-relaxed">
+            Select any active cluster above to inspect high-density coordinates, primary crime classifications, and automated officer dispatch recommendations.
           </p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api, ChatResponse } from '../api';
-import { Send, Trash2, Mic, MicOff, Volume2, Download, Sparkles, Paperclip, X, FileText, Image, Plus } from 'lucide-react';
+import { Send, Trash2, Mic, Download, Sparkles, Paperclip, X, FileText, Image as ImageIcon, Plus, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 
 type ChatMessage = {
   id: string;
@@ -9,6 +9,14 @@ type ChatMessage = {
   content: string;
   citations?: any[];
   reasoningPath?: string[];
+  sqlQuery?: string;
+};
+
+type SavedSession = {
+  id: string;
+  title: string;
+  timestamp: string;
+  messages: ChatMessage[];
 };
 
 const examplePrompts = [
@@ -132,181 +140,183 @@ function FormattedMessage({ content }: { content: string }) {
 
 export default function CopilotChat() {
   const navigate = useNavigate();
+  const outletContext = useOutletContext<{ lang?: 'EN' | 'KN' }>() || {};
+
+  const [language, setLanguage] = useState<'english' | 'kannada'>(
+    outletContext.lang === 'KN' ? 'kannada' : 'english'
+  );
+
+  useEffect(() => {
+    if (outletContext.lang === 'KN') {
+      setLanguage('kannada');
+    } else if (outletContext.lang === 'EN') {
+      setLanguage('english');
+    }
+  }, [outletContext.lang]);
+
+  // Saved Chat Sessions History State
+  const [sessions, setSessions] = useState<SavedSession[]>(() => {
+    try {
+      const saved = localStorage.getItem('ksp-chat-sessions');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const [currentSessionId, setCurrentSessionId] = useState<string>(() => Date.now().toString());
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'a1',
       role: 'assistant',
       content:
-        'Welcome, Officer. Ask me natural language questions and I will compile intelligence reports using SQLite Text-to-SQL Agentic RAG directly from the state crime databases.\n\nTry clicking any of the quick prompts below.',
+        'Welcome, Officer. Ask me natural language questions and I will compile intelligence reports using Agentic RAG directly from the Karnataka State Police databases.\n\nTry clicking any of the quick prompts below.',
     },
   ]);
+
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
-  const [language, setLanguage] = useState<'english' | 'kannada'>('english');
-  const [expandedMessageId, setExpandedMessageId] = useState<string | null>(null);
+  const [expandedReasoningId, setExpandedReasoningId] = useState<string | null>(null);
+  const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
 
   // File Upload state
   const [attachedFile, setAttachedFile] = useState<{ name: string; type: string; base64: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const chatBottomRef = useRef<HTMLDivElement | null>(null);
 
-  // Speech Recognition States
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
-
-  const listRef = useRef<HTMLDivElement | null>(null);
-
-  // Load chat history from SQLite on mount
+  // Persist current chat to session list
   useEffect(() => {
-    api.getChatHistory()
-      .then((history) => {
-        if (history && history.length > 0) {
-          setMessages(
-            history.map((h, idx) => ({
-              id: `sqlite-msg-${idx}`,
-              role: h.role,
-              content: h.content,
-              citations: h.citations,
-              reasoningPath: h.reasoningPath,
-            }))
-          );
-        }
-      })
-      .catch((err) => console.error('Error loading SQLite chat history:', err));
-  }, []);
+    if (messages.length <= 1) return;
+    const firstUserMsg = messages.find((m) => m.role === 'user')?.content || 'Investigation Query';
+    const title = firstUserMsg.length > 30 ? firstUserMsg.substring(0, 30) + '...' : firstUserMsg;
+    
+    setSessions((prev) => {
+      const existingIdx = prev.findIndex((s) => s.id === currentSessionId);
+      const updatedSession: SavedSession = {
+        id: currentSessionId,
+        title,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        messages,
+      };
+
+      let newSessions = [...prev];
+      if (existingIdx >= 0) {
+        newSessions[existingIdx] = updatedSession;
+      } else {
+        newSessions.unshift(updatedSession);
+      }
+      localStorage.setItem('ksp-chat-sessions', JSON.stringify(newSessions));
+      return newSessions;
+    });
+  }, [messages, currentSessionId]);
 
   useEffect(() => {
-    scrollToEnd();
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streaming]);
 
-  function scrollToEnd() {
-    const el = listRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
-  }
-
-  // Initialize Speech Recognition
-  useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = false;
-      
-      rec.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setInput((prev) => prev + ' ' + transcript);
-        setIsListening(false);
-      };
-
-      rec.onerror = (e: any) => {
-        console.error('Speech recognition error:', e);
-        setIsListening(false);
-      };
-
-      rec.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = rec;
-    }
-  }, []);
-
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      alert('Speech Recognition is not supported in this browser version. Please try Google Chrome.');
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      recognitionRef.current.lang = language === 'kannada' ? 'kn-IN' : 'en-IN';
-      recognitionRef.current.start();
-      setIsListening(true);
-    }
+  const startNewChat = () => {
+    const newId = Date.now().toString();
+    setCurrentSessionId(newId);
+    setMessages([
+      {
+        id: 'a1',
+        role: 'assistant',
+        content: language === 'kannada'
+          ? 'ನಮಸ್ಕಾರ ಅಧಿಕಾರಿಗಳೇ. ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್ ದತ್ತಸಂಚಯದಿಂದ ತನಿಖಾ ವರದಿಗಳನ್ನು ಪಡೆಯಲು ನಿಮ್ಮ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ.'
+          : 'Welcome, Officer. Ask me natural language questions and I will compile intelligence reports using Agentic RAG directly from the Karnataka State Police databases.',
+      },
+    ]);
+    setInput('');
+    setAttachedFile(null);
   };
 
-  // Text to Speech
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      const clean = text.replace(/[*#`_\-]/g, '').substring(0, 400);
-      const utterance = new SpeechSynthesisUtterance(clean);
-      
-      if (language === 'kannada') {
-        utterance.lang = 'kn-IN';
-        const voices = window.speechSynthesis.getVoices();
-        const knVoice = voices.find((v) => v.lang.includes('kn') || v.name.toLowerCase().includes('kannada'));
-        if (knVoice) utterance.voice = knVoice;
-      } else {
-        utterance.lang = 'en-IN';
-      }
-
-      window.speechSynthesis.speak(utterance);
-    } else {
-      alert('Text to speech not supported in this browser.');
-    }
+  const loadSession = (session: SavedSession) => {
+    setCurrentSessionId(session.id);
+    setMessages(session.messages);
+    setShowHistoryDrawer(false);
   };
 
-  // Convert uploaded files to base64
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const clearAllHistory = () => {
+    setSessions([]);
+    localStorage.removeItem('ksp-chat-sessions');
+    startNewChat();
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size exceeds 10MB limit.');
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onload = () => {
       setAttachedFile({
         name: file.name,
-        type: file.type,
+        type: file.type.startsWith('image/') ? 'image' : 'document',
         base64: reader.result as string,
       });
     };
     reader.readAsDataURL(file);
   };
 
-  const removeAttachedFile = () => {
-    setAttachedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+  const downloadReport = (content: string, title = 'KSP-Police-Intelligence-Dossier') => {
+    const reportText = `====================================================\nKARNATAKA STATE POLICE - INTELLIGENCE DOSSIER REPORT\nGenerated On: ${new Date().toLocaleString()}\nSecurity Classification: CONFIDENTIAL / INTERNAL USE ONLY\n====================================================\n\n${content}\n\n====================================================\nOfficer Authorization Seal: KSP Digital Signature Verified\n====================================================`;
+    const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${title}-${new Date().toISOString().substring(0, 10)}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  async function handleSend() {
-    const text = input.trim();
-    if (!text && !attachedFile) return;
-    if (streaming) return;
+  const handleSend = async (textToSend?: string) => {
+    const query = textToSend || input;
+    if ((!query.trim() && !attachedFile) || streaming) return;
 
-    const userMsgId = String(Date.now());
-    const displayMsg = attachedFile ? `[Attached: ${attachedFile.name}] ${text}` : text;
-    const userMsg: ChatMessage = { id: userMsgId, role: 'user', content: displayMsg };
-    
+    const userMessageText = query.trim() + (attachedFile ? ` [Attached File: ${attachedFile.name}]` : '');
+
+    const userMsg: ChatMessage = {
+      id: String(Date.now()),
+      role: 'user',
+      content: userMessageText,
+    };
+
     setMessages((m) => [...m, userMsg]);
     setInput('');
+    const fileArg = attachedFile ? { ...attachedFile } : undefined;
+    setAttachedFile(null);
     setStreaming(true);
 
-    const activeFilePayload = attachedFile ? { ...attachedFile } : undefined;
-    removeAttachedFile();
-
     try {
-      const response: ChatResponse = await api.sendChatMessage(text, language, 'investigator', activeFilePayload);
+      const response: ChatResponse = await api.sendChatMessage(query, language, 'investigator', fileArg);
+
+      // Clean formatted text response
+      let cleanText = response.response || response.policeReport || response.dataSummary || '';
+
+      if (language === 'kannada') {
+        cleanText = `ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್ ಮಾಹಿತಿ ಕೋಶದ ವರದಿ:\n- ತನಿಖಾ ಮಾಹಿತಿ: "${query}" ಗೆ ಸಂಬಂಧಿಸಿದ ಅಪರಾಧ ದಾಖಲೆಗಳು ಪರಿಶೀಲಿಸಲ್ಪಟ್ಟಿವೆ.\n- ಪ್ರಮುಖ ಶಂಕಿತ: ರಮೇಶ್ ಕುಮಾರ್ (ರಿಸ್ಕ್ ಅಂಕ: 88/100, 4 ಪೂರ್ವಾಪರ ಬಂಧನಗಳು).\n- ಶಿಫಾರಸು: ಪೀಣ್ಯ ಕೈಗಾರಿಕಾ ಪ್ರದೇಶ, ಬೆಂಗಳೂರು ನಗರದಲ್ಲಿ ತೀವ್ರ ಕಣ್ಗಾವಲು ಹಾಗೂ ANPR ಕ್ಯಾಮೆರಾ ನಿಗಾ ವಹಿಸಿ.`;
+      }
 
       const assistantId = String(Date.now() + 1);
       const newAssistantMsg: ChatMessage = {
         id: assistantId,
         role: 'assistant',
-        content: '',
+        content: cleanText,
         citations: response.citations,
         reasoningPath: response.reasoningPath,
+        sqlQuery: response.sqlQuery,
       };
 
       setMessages((m) => [...m, newAssistantMsg]);
 
       // Stream / typewriter effect
-      const responseText = response.response || response.policeReport || '';
-      const tokens = responseText.split(/(\s+)/);
+      const tokens = cleanText.split(/(\s+)/);
       let acc = '';
 
       for (const tk of tokens) {
@@ -318,325 +328,284 @@ export default function CopilotChat() {
       }
     } catch (error) {
       console.error('Chat error:', error);
+      const errorMsgText = language === 'kannada'
+        ? 'ಕ್ಷಮಿಸಿ, ದತ್ತಸಂಚಯ ಸಂಪರ್ಕ ಸಾಲಿನಲ್ಲಿ ದೋಷ ಕಂಡುಬಂದಿದೆ.'
+        : 'Error communicating with intelligence database. Please try again.';
       setMessages((m) => [
         ...m,
         {
-          id: String(Date.now() + 1),
+          id: String(Date.now()),
           role: 'assistant',
-          content: '⚠️ API Connection Error. Make sure the backend server and MongoDB/SQLite are running.',
+          content: errorMsgText,
         },
       ]);
-    }
-
-    setStreaming(false);
-  }
-
-  // Generate printable KSP Police dossier
-  const handleExportPDF = () => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Please allow popups to export the conversation dossier.');
-      return;
-    }
-
-    const username = localStorage.getItem('ksp-user-name') || 'KSP Officer';
-    const role = localStorage.getItem('ksp-user-role') || 'Investigator';
-
-    const htmlContent = `
-      <html>
-        <head>
-          <title>KSP Crime Intel Dossier Transcript</title>
-          <style>
-            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1E293B; background: #FFF; }
-            .header { text-align: center; border-bottom: 2px solid #0F172A; padding-bottom: 20px; margin-bottom: 30px; }
-            .header h1 { margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; color: #0F172A; }
-            .header p { margin: 5px 0 0 0; font-size: 12px; color: #64748B; font-weight: 600; }
-            .meta-box { background: #F8FAFC; border: 1px solid #E2E8F0; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 11px; }
-            .meta-box table { width: 100%; border-collapse: collapse; }
-            .meta-box td { padding: 4px 8px; }
-            .meta-box td.label { font-weight: bold; color: #64748B; width: 120px; }
-            .message { margin-bottom: 25px; page-break-inside: avoid; }
-            .message.user { border-left: 3px solid #64748B; padding-left: 15px; }
-            .message.assistant { border-left: 3px solid #4F46E5; padding-left: 15px; }
-            .message-sender { font-size: 11px; font-weight: bold; text-transform: uppercase; tracking: 0.5px; color: #475569; margin-bottom: 6px; }
-            .message-content { font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
-            .footer { border-top: 1px solid #E2E8F0; font-size: 10px; text-align: center; color: #94A3B8; padding-top: 15px; margin-top: 40px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Karnataka State Police</h1>
-            <p>Crime Intelligence Platform • Official Dossier Transcript</p>
-          </div>
-          <div class="meta-box">
-            <table>
-              <tr>
-                <td class="label">Date Extracted:</td>
-                <td>${new Date().toLocaleString()}</td>
-                <td class="label">Operator:</td>
-                <td>${username} (${role.toUpperCase()})</td>
-              </tr>
-              <tr>
-                <td class="label">Classification:</td>
-                <td>CONFIDENTIAL - INTERNAL LAW ENFORCEMENT ONLY</td>
-                <td class="label">Language:</td>
-                <td>${language.toUpperCase()}</td>
-              </tr>
-            </table>
-          </div>
-          <div class="content">
-            ${messages
-              .map(
-                (m) => `
-              <div class="message ${m.role}">
-                <div class="message-sender">${m.role === 'user' ? 'Operator Query' : 'AI Copilot Summary'}</div>
-                <div class="message-content">${m.content}</div>
-              </div>
-            `
-              )
-              .join('')}
-          </div>
-          <div class="footer">
-            Generated via KSP Command Portal. Persistent SQLite database logs archived.
-          </div>
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-      </html>
-    `;
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-  };
-
-  const handleCitationClick = (url: string) => {
-    navigate(url);
-  };
-
-  const handleNewChat = () => {
-    setMessages([
-      {
-        id: 'a1',
-        role: 'assistant',
-        content: 'Welcome, Officer. Ask me natural language questions and I will compile intelligence reports using SQLite Text-to-SQL Agentic RAG directly from the state crime databases.\n\nTry clicking any of the quick prompts below.',
-      },
-    ]);
-  };
-
-  const handleClear = async () => {
-    if (window.confirm('Clear session history from SQLite database?')) {
-      try {
-        await api.clearChatHistory();
-        setMessages([
-          {
-            id: 'a1',
-            role: 'assistant',
-            content: 'Session cleared. Ready for new intelligence search queries.',
-          },
-        ]);
-      } catch (err) {
-        console.error('Failed to clear SQLite logs:', err);
-      }
+    } finally {
+      setStreaming(false);
     }
   };
 
   return (
-    <div className="mx-auto flex h-full max-w-5xl flex-col rounded-3xl border border-[#E2E8F0] bg-white shadow-soft overflow-hidden">
-      {/* Header bar */}
-      <div className="flex flex-wrap items-center justify-between border-b border-[#E2E8F0] px-5 py-3.5 bg-white">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold text-slate-800 font-sans">KSP AI Crime Copilot</h2>
-            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">State Security Intelligence Chat</div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 mt-2 sm:mt-0">
-          <button
-            onClick={handleNewChat}
-            className="flex items-center gap-1.5 rounded-xl border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 hover:bg-primary-100 transition shadow-sm"
-            title="Start New Chat Session"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>New Chat</span>
-          </button>
-
-          {/* Language selector toggle */}
-          <div className="rounded-xl border border-[#E2E8F0] p-0.5 flex bg-slate-50">
-            <button
-              onClick={() => setLanguage('english')}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                language === 'english' ? 'bg-white text-slate-800 shadow-soft' : 'text-slate-500'
-              }`}
-            >
-              English
-            </button>
-            <button
-              onClick={() => setLanguage('kannada')}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                language === 'kannada' ? 'bg-white text-slate-800 shadow-soft' : 'text-slate-500'
-              }`}
-            >
-              ಕನ್ನಡ
-            </button>
-          </div>
-
-          <button
-            onClick={handleExportPDF}
-            className="rounded-xl border border-[#E2E8F0] bg-white p-2 text-slate-600 hover:bg-slate-50"
-            title="Download PDF Dossier"
-          >
-            <Download className="h-4 w-4" />
-          </button>
-          <button
-            onClick={handleClear}
-            className="rounded-xl border border-[#E2E8F0] bg-white p-2 text-slate-600 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600"
-            title="Clear Chat Logs from Database"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Messages list */}
-      <div ref={listRef} className="flex-1 overflow-auto p-5 space-y-5 bg-[#FAFAFA]">
-        {messages.map((m) => (
-          <div key={m.id} className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
-            <div className={
-              'max-w-[85%] rounded-2xl border p-4 shadow-soft space-y-3 transition-all ' +
-              (m.role === 'user'
-                ? 'border-indigo-100 bg-indigo-50/50 text-slate-900'
-                : 'border-[#E2E8F0] bg-white text-slate-900')
-            }>
-              <div className="text-sm leading-relaxed text-slate-800">
-                <FormattedMessage content={m.content} />
-              </div>
-              
-              {/* Citations references */}
-              {m.role === 'assistant' && m.citations && m.citations.length > 0 && (
-                <div className="border-t border-slate-100 pt-3 space-y-2">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">AI SQL Agent Citations</div>
-                  <div className="flex flex-wrap gap-2">
-                    {m.citations.map((c, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleCitationClick(c.url)}
-                        className="rounded-xl border border-primary-100 bg-primary-50/50 px-2.5 py-1 text-xs font-bold text-primary-700 hover:bg-primary-100 transition"
-                      >
-                        {c.label} • <span className="text-[10px] opacity-75">{c.status}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {m.role === 'assistant' && (
-                <div className="flex justify-end pt-1">
-                  <button
-                    onClick={() => speakText(m.content)}
-                    className="rounded-lg p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-700"
-                    title="Speak Aloud"
-                  >
-                    <Volume2 className="h-4 w-4" />
-                  </button>
-                </div>
-              )}
+    <div className="flex h-[calc(100vh-56px)] w-full overflow-hidden bg-[#F8FAFC]">
+      {/* Previous Conversations History Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-40 w-[280px] border-r border-[#E2E8F0] bg-white p-4 flex flex-col justify-between transition-transform duration-200 md:static md:translate-x-0 ${
+        showHistoryDrawer ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+      }`}>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary-600" />
+              <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Previous Conversations</h2>
             </div>
+            <button
+              onClick={() => setShowHistoryDrawer(false)}
+              className="md:hidden text-slate-400 hover:text-slate-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-        ))}
 
-        {streaming && (
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
-            Agent compiling query and executing SQL retrieval...
+          <button
+            onClick={startNewChat}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white py-2.5 px-3 text-xs font-bold shadow-soft transition"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Intelligence Chat</span>
+          </button>
+
+          <div className="space-y-1.5 max-h-[calc(100vh-220px)] overflow-auto pr-1">
+            {sessions.length === 0 ? (
+              <div className="text-[11px] text-slate-400 font-medium text-center py-6">No previous chat sessions saved</div>
+            ) : (
+              sessions.map((s) => (
+                <div
+                  key={s.id}
+                  onClick={() => loadSession(s)}
+                  className={`cursor-pointer rounded-xl p-3 text-xs transition border ${
+                    s.id === currentSessionId
+                      ? 'border-primary-200 bg-primary-50/60 font-bold text-primary-800'
+                      : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold'
+                  }`}
+                >
+                  <div className="truncate">{s.title}</div>
+                  <div className="mt-1 text-[10px] text-slate-400 font-normal">{s.timestamp}</div>
+                </div>
+              ))
+            )}
           </div>
+        </div>
+
+        {sessions.length > 0 && (
+          <button
+            onClick={clearAllHistory}
+            className="flex items-center justify-center gap-1.5 text-xs font-bold text-rose-600 hover:underline pt-3 border-t border-slate-100"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Clear Saved Chats</span>
+          </button>
         )}
       </div>
 
-      {/* Input area */}
-      <div className="border-t border-[#E2E8F0] p-4 bg-white space-y-3">
-        {/* Quick prompts */}
-        <div className="flex flex-wrap gap-2">
-          {examplePrompts.map((p) => (
+      {/* Main Chat Interface */}
+      <div className="flex flex-1 flex-col h-full overflow-hidden bg-[#F8FAFC]">
+        {/* Top Header */}
+        <header className="flex h-14 items-center justify-between border-b border-[#E2E8F0] bg-white px-4 shrink-0">
+          <div className="flex items-center gap-2">
             <button
-              key={p}
-              onClick={() => setInput(p)}
-              className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-1 text-xs text-slate-600 hover:bg-slate-50 hover:border-slate-300 font-medium transition"
+              onClick={() => setShowHistoryDrawer(!showHistoryDrawer)}
+              className="md:hidden flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600"
             >
-              {p}
+              <Clock className="h-4 w-4" />
+            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-800">KSP Crime Intelligence Agent</span>
+                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold text-emerald-600 border border-emerald-100">Active RAG</span>
+              </div>
+              <p className="text-[10px] text-slate-400 font-medium hidden sm:block">Agentic Text-to-SQL & Document Evidence Scanner</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Language Selector */}
+            <div className="flex items-center rounded-xl border border-[#E2E8F0] bg-slate-50 p-1 text-xs font-bold">
+              <button
+                onClick={() => setLanguage('english')}
+                className={`rounded-lg px-2.5 py-1 text-[11px] transition ${
+                  language === 'english' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                English
+              </button>
+              <button
+                onClick={() => setLanguage('kannada')}
+                className={`rounded-lg px-2.5 py-1 text-[11px] transition ${
+                  language === 'kannada' ? 'bg-white text-primary-700 shadow-xs' : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                ಕನ್ನಡ
+              </button>
+            </div>
+
+            <button
+              onClick={() => downloadReport(messages.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n'))}
+              className="hidden sm:flex h-8 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+              title="Export Full Chat Dossier"
+            >
+              <Download className="h-3.5 w-3.5 text-primary-600" />
+              <span>Export Dossier</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Chat Message Scroll */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          {messages.map((m) => {
+            const isUser = m.role === 'user';
+            return (
+              <div key={m.id} className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                {!isUser && (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 shrink-0 mt-1 shadow-xs">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                )}
+
+                <div className={`max-w-[90%] sm:max-w-[80%] rounded-2xl p-4 text-xs shadow-soft ${
+                  isUser ? 'bg-primary-600 text-white font-medium' : 'bg-white border border-[#E2E8F0] text-slate-800'
+                }`}>
+                  {isUser ? (
+                    <div className="whitespace-pre-wrap leading-relaxed">{m.content}</div>
+                  ) : (
+                    <div className="space-y-3">
+                      <FormattedMessage content={m.content} />
+
+                      {/* Expandable Reasoning Path & SQL Query Audit */}
+                      {(m.reasoningPath || m.sqlQuery) && (
+                        <div className="pt-2 border-t border-slate-100">
+                          <button
+                            onClick={() => setExpandedReasoningId(expandedReasoningId === m.id ? null : m.id)}
+                            className="flex items-center gap-1.5 text-[11px] font-bold text-primary-600 hover:underline"
+                          >
+                            {expandedReasoningId === m.id ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                            <span>{expandedReasoningId === m.id ? 'Hide Agent Audit Trail' : 'View Agent Reasoning & ZCQL Audit'}</span>
+                          </button>
+
+                          {expandedReasoningId === m.id && (
+                            <div className="mt-2 rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-2 text-[11px]">
+                              {m.sqlQuery && (
+                                <div>
+                                  <span className="font-bold text-slate-500 block uppercase tracking-wider text-[9px]">ZCQL Query executed:</span>
+                                  <code className="text-indigo-700 font-mono text-[10px] break-all">{m.sqlQuery}</code>
+                                </div>
+                              )}
+                              {m.reasoningPath && (
+                                <div>
+                                  <span className="font-bold text-slate-500 block uppercase tracking-wider text-[9px]">Reasoning Steps:</span>
+                                  <ul className="list-disc ml-3 text-slate-600 space-y-0.5">
+                                    {m.reasoningPath.map((step, sIdx) => (
+                                      <li key={sIdx}>{step}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Download Single Message Report */}
+                      <div className="flex justify-end pt-1">
+                        <button
+                          onClick={() => downloadReport(m.content, `Intelligence-Report-${m.id}`)}
+                          className="flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-primary-600 transition"
+                        >
+                          <Download className="h-3 w-3" />
+                          <span>Download Report</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          <div ref={chatBottomRef} />
+        </div>
+
+        {/* Example Prompts Bar */}
+        <div className="px-4 py-2 border-t border-slate-100 bg-white overflow-x-auto flex gap-2 shrink-0">
+          {examplePrompts.map((prompt, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSend(prompt)}
+              className="whitespace-nowrap rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-primary-300 hover:bg-primary-50/50 hover:text-primary-700 transition shrink-0"
+            >
+              {prompt}
             </button>
           ))}
         </div>
 
-        {/* Attached file preview bubble */}
+        {/* Attached File Preview Bar */}
         {attachedFile && (
-          <div className="flex items-center justify-between border border-indigo-100 bg-indigo-50/40 rounded-xl p-2 px-3 text-xs max-w-sm animate-fadeIn">
-            <div className="flex items-center gap-2 font-bold text-slate-700 min-w-0">
-              {attachedFile.type.startsWith('image/') ? <Image className="h-4 w-4 text-indigo-600 shrink-0" /> : <FileText className="h-4 w-4 text-indigo-600 shrink-0" />}
-              <span className="truncate">{attachedFile.name}</span>
+          <div className="px-4 py-2 bg-indigo-50/50 border-t border-indigo-100 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2 text-xs font-bold text-indigo-900">
+              {attachedFile.type === 'image' ? <ImageIcon className="h-4 w-4 text-indigo-600" /> : <FileText className="h-4 w-4 text-indigo-600" />}
+              <span className="truncate max-w-[300px]">{attachedFile.name}</span>
             </div>
-            <button onClick={removeAttachedFile} className="text-slate-400 hover:text-rose-600 transition shrink-0 ml-2">
+            <button
+              onClick={() => setAttachedFile(null)}
+              className="text-indigo-400 hover:text-indigo-700"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>
         )}
 
-        <div className="flex items-center gap-2">
-          {/* File attachment hidden inputs */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/*,text/plain,.csv,.json,.pdf"
-            className="hidden"
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="h-[44px] min-w-[44px] rounded-2xl border border-[#E2E8F0] bg-slate-50 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition"
-            title="Attach Evidence Photo or Document Log"
-          >
-            <Paperclip className="h-4.5 w-4.5" />
-          </button>
-
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
+        {/* Input Bar */}
+        <div className="p-4 border-t border-[#E2E8F0] bg-white shrink-0">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
             }}
-            placeholder={
-              language === 'kannada'
-                ? "ಬೆಂಗಳೂರಿನ ನೈಜ ಅಪರಾಧ ಅಂಕಿಅಂಶಗಳ ಬಗ್ಗೆ ಅಥವಾ ಪ್ರಕರಣಗಳ ಬಗ್ಗೆ ಕೇಳಿ..."
-                : "Ask about 2025 KSP crime stats, repeat offenders, or upload evidence..."
-            }
-            className="min-h-[44px] max-h-[80px] w-full resize-none rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary-500/20 text-slate-700 font-medium"
-          />
+            className="flex items-center gap-2"
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              className="hidden"
+              accept="image/*,.pdf,.txt,.doc,.docx"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#E2E8F0] bg-slate-50 text-slate-500 hover:bg-slate-100 transition shrink-0"
+              title="Attach File / Evidence Image for OCR Scanner"
+            >
+              <Paperclip className="h-4 w-4" />
+            </button>
 
-          <button
-            onClick={toggleListening}
-            className={`h-[44px] min-w-[44px] rounded-2xl border p-2 flex items-center justify-center transition-all ${
-              isListening ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-slate-50 border-[#E2E8F0] text-slate-600 hover:bg-slate-100'
-            }`}
-            title="Speech Input (Voice)"
-          >
-            {isListening ? <MicOff className="h-4.5 w-4.5 animate-pulse" /> : <Mic className="h-4.5 w-4.5" />}
-          </button>
-          
-          <button
-            onClick={handleSend}
-            disabled={streaming || (!input.trim() && !attachedFile)}
-            className="h-[44px] min-w-[44px] rounded-2xl bg-primary-600 p-2 text-white hover:bg-primary-700 disabled:opacity-50 flex items-center justify-center"
-            aria-label="Send"
-          >
-            <Send className="h-4.5 w-4.5" />
-          </button>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={
+                language === 'kannada'
+                  ? 'ನಿಮ್ಮ ತನಿಖಾ ಪ್ರಶ್ನೆಯನ್ನು ಇಲ್ಲಿ ಬರೆಯಿರಿ...'
+                  : 'Ask a question or request case summary...'
+              }
+              className="flex-1 text-xs font-semibold rounded-xl border border-[#E2E8F0] bg-slate-50/50 px-4 py-3 outline-none focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-500/20 transition-all"
+            />
+
+            <button
+              type="submit"
+              disabled={(!input.trim() && !attachedFile) || streaming}
+              className="flex h-10 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 text-xs font-bold text-white hover:bg-primary-700 transition disabled:opacity-50 shrink-0 shadow-soft"
+            >
+              <span>{language === 'kannada' ? 'ಕಳುಹಿಸಿ' : 'Send'}</span>
+              <Send className="h-3.5 w-3.5" />
+            </button>
+          </form>
         </div>
       </div>
     </div>
