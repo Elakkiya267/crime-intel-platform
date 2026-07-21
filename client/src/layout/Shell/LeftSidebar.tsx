@@ -43,7 +43,7 @@ export default function LeftSidebar() {
       <div className="flex h-[64px] items-center justify-between px-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2">
           <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-[#E2E8F0] bg-white shadow-sm shrink-0">
-            <img src="/logo.jpg" alt="KSP Logo" className="h-full w-full object-cover" />
+            <img src="./logo.jpg" alt="KSP Logo" className="h-full w-full object-cover" />
           </div>
           {!collapsed && (
             <div className="leading-tight">

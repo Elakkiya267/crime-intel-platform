@@ -150,11 +150,34 @@ export const api = {
     } catch (e) {
       console.warn('Backend API unreachable, using local fallback dashboard metrics:', e);
       return {
-        cyberCount: mockFirs.filter(f => f.type === 'Cyber Crime').length,
-        womenSafetyCount: mockFirs.filter(f => f.type === 'Women Safety').length,
-        financialCount: mockFirs.filter(f => f.type === 'Financial Crimes').length,
-        theftCount: mockFirs.filter(f => f.type === 'Theft').length,
-        totalCount: mockFirs.length
+        kpis: {
+          totalFirs: mockFirs.length,
+          openCases: mockFirs.filter(f => f.status === 'Open').length,
+          solvedCases: mockFirs.filter(f => f.status === 'Solved').length,
+          pendingCases: mockFirs.filter(f => f.status === 'Pending Investigation').length,
+          repeatOffenders: mockAccused.filter(a => a.priorArrests >= 2).length,
+          hotspotsCount: mockHotspots.length
+        },
+        activities: [
+          { id: 1, type: 'FIR Registered', title: 'Phishing & Sim Swap Fraud', time: '10 mins ago', district: 'Bengaluru Urban' },
+          { id: 2, type: 'Hotspot Alert', title: 'High Density Alert at Peenya Industrial Area', time: '25 mins ago', district: 'Bengaluru Urban' },
+          { id: 3, type: 'Accused Flagged', title: 'Ramesh Kumar risk score updated to 88', time: '1 hour ago', district: 'Bengaluru Urban' },
+          { id: 4, type: 'Transaction Flagged', title: 'Hawala transfer ₹7,50,000 intercepted', time: '2 hours ago', district: 'Mangaluru' }
+        ],
+        trends: [
+          { name: 'Jan', crimes: 340 },
+          { name: 'Feb', crimes: 380 },
+          { name: 'Mar', crimes: 410 },
+          { name: 'Apr', crimes: 450 },
+          { name: 'May', crimes: 490 },
+          { name: 'Jun', crimes: 530 }
+        ],
+        breakdown: [
+          { type: 'Cyber Crime', count: 2 },
+          { type: 'Women Safety', count: 1 },
+          { type: 'Financial Crimes', count: 2 },
+          { type: 'Theft', count: 1 }
+        ]
       };
     }
   },

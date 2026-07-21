@@ -57,7 +57,7 @@ export default function LoginPage() {
         {/* Title logo */}
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[#E2E8F0] bg-white shadow-sm shrink-0">
-            <img src="/logo.jpg" alt="KSP Logo" className="h-full w-full object-cover" />
+            <img src="./logo.jpg" alt="KSP Logo" className="h-full w-full object-cover" />
           </div>
           <div>
             <div className="text-lg font-bold text-slate-800">KSP Intelligence Portal</div>
