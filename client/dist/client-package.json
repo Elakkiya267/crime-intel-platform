@@ -1,5 +1,6 @@
 {
   "name": "datathon-client",
   "version": "1.0.0",
-  "homepage": "index.html"
+  "homepage": "index.html",
+  "loginpage": "index.html"
 }
