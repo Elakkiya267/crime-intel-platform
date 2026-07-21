@@ -1,0 +1,131 @@
+@import "leaflet/dist/leaflet.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg-primary: #0b0f19;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1f2937;
+  --border-color: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+}
+
+/* Global Dark Mode Overrides */
+.dark body,
+.dark .bg-\[\#F8FAFC\],
+.dark .bg-\[\#FAFAFA\],
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark aside,
+.dark header,
+.dark nav,
+.dark .bg-white,
+.dark table,
+.dark tr,
+.dark section,
+.dark .bg-slate-50\/50,
+.dark div[class*="bg-white"],
+.dark div[class*="bg-[#FAFAFA]"],
+.dark div[class*="bg-slate-50"],
+.dark div[class*="border-[#E2E8F0]"] {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark input,
+.dark textarea,
+.dark select,
+.dark .bg-slate-50\/50 {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: var(--text-secondary) !important;
+}
+
+.dark div,
+.dark span,
+.dark button,
+.dark p,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark th,
+.dark td {
+  border-color: var(--border-color) !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-l,
+.dark .border-b,
+.dark .border-t,
+.dark .border-r {
+  border-color: var(--border-color) !important;
+}
+
+.dark .shadow-soft,
+.dark .shadow-sm,
+.dark .shadow-md {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+  border-radius: 999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(249, 250, 251, 0.15);
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.06);
+}
+

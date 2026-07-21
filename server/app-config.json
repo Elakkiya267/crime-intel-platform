@@ -1,0 +1,8 @@
+{
+  "stack": "nodejs18",
+  "command": "node index.js",
+  "env_variables": {
+    "NODE_ENV": "production"
+  },
+  "memory": 256
+}

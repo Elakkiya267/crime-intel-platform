@@ -1,0 +1,13 @@
+{
+  "name": "ksp-crime-intel-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^9.7.4",
+    "sqlite3": "^6.0.1",
+    "zcatalyst-sdk-node": "^2.5.0"
+  }
+}

@@ -1,0 +1,708 @@
+{
+  "firs": [
+    {
+      "id": "KSP/2026/04431",
+      "title": "Phishing & Sim Swap Bank Fraud",
+      "description": "Victim reported sudden loss of cellular signal, followed by three unauthorized transactions totaling ₹15,00,000 from accounts.",
+      "type": "Cyber Crime",
+      "status": "Open",
+      "severity": "High",
+      "date": "2026-06-15",
+      "time": "14:30",
+      "location": "Indiranagar",
+      "district": "Bengaluru Urban",
+      "policeStation": "Indiranagar Station",
+      "modusOperandi": "Sim Swap and Phishing",
+      "accusedIds": ["A-1193", "A-1204"],
+      "victimIds": ["V-5001"],
+      "witnessIds": ["W-6001"],
+      "evidenceIds": ["E-8001", "E-8002"]
+    },
+    {
+      "id": "KSP/2026/04108",
+      "title": "Domestic Assault and Extortion",
+      "description": "Victim subjected to physical abuse and demands for dowry. Accused threatened victim's family with public defamation.",
+      "type": "Women Safety",
+      "status": "Pending Investigation",
+      "severity": "Medium",
+      "date": "2026-05-20",
+      "time": "09:00",
+      "location": "Kuchela Layout",
+      "district": "Mysuru",
+      "policeStation": "Mysuru East Station",
+      "modusOperandi": "Physical Abuse & Blackmail",
+      "accusedIds": ["A-1102"],
+      "victimIds": ["V-5002"],
+      "witnessIds": ["W-6002"],
+      "evidenceIds": ["E-8003"]
+    },
+    {
+      "id": "KSP/2026/03977",
+      "title": "Shell Company Investment Fraud",
+      "description": "Luring middle-income victims into investing in dummy agricultural startups promising 40% yearly returns. Money routed through shell accounts.",
+      "type": "Financial Crimes",
+      "status": "Solved",
+      "severity": "High",
+      "date": "2026-04-12",
+      "time": "11:15",
+      "location": "Lalbagh Road",
+      "district": "Bengaluru Urban",
+      "policeStation": "Wilson Garden Station",
+      "modusOperandi": "Shell Company Ponzi Scheme",
+      "accusedIds": ["A-1193", "A-1105"],
+      "victimIds": ["V-5003", "V-5004"],
+      "witnessIds": ["W-6003"],
+      "evidenceIds": ["E-8004"]
+    },
+    {
+      "id": "KSP/2026/02991",
+      "title": "Gold Smuggling Syndicate",
+      "description": "Interception of passenger carrying 4.5kg of undeclared gold paste in custom linings at airport transit. Linked to cross-border networks.",
+      "type": "Financial Crimes",
+      "status": "Open",
+      "severity": "High",
+      "date": "2026-03-01",
+      "time": "22:45",
+      "location": "Bajpe",
+      "district": "Mangaluru",
+      "policeStation": "Mangaluru North Station",
+      "modusOperandi": "Smuggling paste hidden in garments",
+      "accusedIds": ["A-1204", "A-1301"],
+      "victimIds": [],
+      "witnessIds": ["W-6004"],
+      "evidenceIds": ["E-8005"]
+    },
+    {
+      "id": "KSP/2026/01874",
+      "title": "Harassment & Online Cyberstalking",
+      "description": "Accused created fake profiles of the victim and posted morphing pictures online, demanding money to delete them.",
+      "type": "Women Safety",
+      "status": "Solved",
+      "severity": "Medium",
+      "date": "2026-02-14",
+      "time": "18:20",
+      "location": "Kuvempunagar",
+      "district": "Mysuru",
+      "policeStation": "Mysuru Central Station",
+      "modusOperandi": "Social Media Morphing and Blackmail",
+      "accusedIds": ["A-1105"],
+      "victimIds": ["V-5005"],
+      "witnessIds": [],
+      "evidenceIds": ["E-8006"]
+    },
+    {
+      "id": "KSP/2026/05501",
+      "title": "Crypto Laundering & Ransomware",
+      "description": "IT enterprise files encrypted. Accused demanded 2.5 BTC ransom. Transactions traced to mixer services.",
+      "type": "Cyber Crime",
+      "status": "Open",
+      "severity": "High",
+      "date": "2026-07-02",
+      "time": "03:40",
+      "location": "Whitefield",
+      "district": "Bengaluru Urban",
+      "policeStation": "Whitefield Station",
+      "modusOperandi": "Lockbit Ransomware payload distribution",
+      "accusedIds": ["A-1193"],
+      "victimIds": ["V-5006"],
+      "witnessIds": ["W-6005"],
+      "evidenceIds": ["E-8007", "E-8008"]
+    },
+    {
+      "id": "KSP/2026/05120",
+      "title": "Inter-District Vehicle Theft Gang",
+      "description": "Theft of three SUVs from parking lots overnight using key signal boosters. Vehicles transported to neighbor states.",
+      "type": "Theft",
+      "status": "Pending Investigation",
+      "severity": "Medium",
+      "date": "2026-06-28",
+      "time": "02:10",
+      "location": "Hampankatta",
+      "district": "Mangaluru",
+      "policeStation": "Mangaluru South Station",
+      "modusOperandi": "Keyless Signal Jammer Bypass",
+      "accusedIds": ["A-1301", "A-1302"],
+      "victimIds": ["V-5007"],
+      "witnessIds": [],
+      "evidenceIds": ["E-8009"]
+    },
+    {
+      "id": "KSP/2026/04910",
+      "title": "Industrial Land Grabbing Scheme",
+      "description": "Forgery of land documents and property titles of elderly NRIs using corrupt registration agents.",
+      "type": "Financial Crimes",
+      "status": "Open",
+      "severity": "High",
+      "date": "2026-06-08",
+      "time": "10:30",
+      "location": "Dharwad Town",
+      "district": "Hubballi-Dharwad",
+      "policeStation": "Dharwad Town Station",
+      "modusOperandi": "Document Forgery & Stamp Tampering",
+      "accusedIds": ["A-1204", "A-1102"],
+      "victimIds": ["V-5008"],
+      "witnessIds": ["W-6006"],
+      "evidenceIds": ["E-8010"]
+    }
+  ],
+  "accused": [
+    {
+      "id": "A-1193",
+      "name": "Karthik Gowda (Kitti)",
+      "age": 29,
+      "gender": "Male",
+      "education": "B.Tech Dropout",
+      "occupation": "Unemployed Tech Consultant",
+      "socioEconomic": "Middle Income (Economically Stressed)",
+      "district": "Bengaluru Urban",
+      "address": "2nd Cross, Malleshwaram, Bengaluru",
+      "modusOperandi": "Sim Swap, Phishing, Ransomware deployer",
+      "riskScore": 85,
+      "riskLevel": "High",
+      "priorArrests": 2,
+      "criminalHistory": ["KSP/2024/09912 (Online fraud - Bail out)", "KSP/2026/03977 (Ponzi - Suspect)"],
+      "bankAccounts": ["9901-2244-12", "5512-8812-44"],
+      "networkTies": ["A-1204 (Associate)", "A-1105 (Developer partner)"]
+    },
+    {
+      "id": "A-1204",
+      "name": "Manjunath Swamy",
+      "age": 42,
+      "gender": "Male",
+      "education": "High School Fail",
+      "occupation": "Real Estate Broker",
+      "socioEconomic": "Low Income (High Debt)",
+      "district": "Bengaluru Urban",
+      "address": "Yeshwanthpur Slum Board, Bengaluru",
+      "modusOperandi": "Hawala router, forged stamp coordinator, logistics helper",
+      "riskScore": 92,
+      "riskLevel": "High",
+      "priorArrests": 5,
+      "criminalHistory": ["KSP/2022/10041 (Assault)", "KSP/2023/04421 (Land Grabbing)", "KSP/2026/02991 (Gold smuggling)"],
+      "bankAccounts": ["4412-9901-09"],
+      "networkTies": ["A-1193 (Money router)", "A-1301 (Logistics)"]
+    },
+    {
+      "id": "A-1102",
+      "name": "Raghavendra Hegde",
+      "age": 36,
+      "gender": "Male",
+      "education": "Post Graduate",
+      "occupation": "Assistant Registrar Office (Suspended)",
+      "socioEconomic": "Upper Middle Income",
+      "district": "Hubballi-Dharwad",
+      "address": "Saraswatpur, Dharwad",
+      "modusOperandi": "Document forgery and insider facilitation",
+      "riskScore": 45,
+      "riskLevel": "Medium",
+      "priorArrests": 0,
+      "criminalHistory": ["KSP/2026/04910 (Land grabbing)"],
+      "bankAccounts": ["3302-8811-92"],
+      "networkTies": ["A-1204 (Broker client)"]
+    },
+    {
+      "id": "A-1105",
+      "name": "Nisha Kulkarni",
+      "age": 26,
+      "gender": "Female",
+      "education": "B.Sc Computer Science",
+      "occupation": "Freelance Web Designer",
+      "socioEconomic": "Lower Middle Income",
+      "district": "Mysuru",
+      "address": "Gokulam 3rd Stage, Mysuru",
+      "modusOperandi": "Fake profile builder and phishing portal script designer",
+      "riskScore": 60,
+      "riskLevel": "Medium",
+      "priorArrests": 1,
+      "criminalHistory": ["KSP/2026/01874 (Stalking - Convicted)"],
+      "bankAccounts": ["8823-1102-45"],
+      "networkTies": ["A-1193 (Client)"]
+    },
+    {
+      "id": "A-1301",
+      "name": "Vikram (Vicky) D'Souza",
+      "age": 31,
+      "gender": "Male",
+      "education": "10th Standard",
+      "occupation": "Airport Cargo Loader",
+      "socioEconomic": "Low Income (Migrant)",
+      "district": "Mangaluru",
+      "address": "Kankanady, Mangaluru",
+      "modusOperandi": "Smuggling logistics bypass and driver",
+      "riskScore": 75,
+      "riskLevel": "High",
+      "priorArrests": 3,
+      "criminalHistory": ["KSP/2023/12001 (Smuggling)", "KSP/2026/05120 (Vehicle theft)"],
+      "bankAccounts": ["1029-4402-99"],
+      "networkTies": ["A-1204 (Laundering coordinator)", "A-1302 (Thief partner)"]
+    },
+    {
+      "id": "A-1302",
+      "name": "Santosh Nayak",
+      "age": 28,
+      "gender": "Male",
+      "education": "Uneducated",
+      "occupation": "Garage Helper",
+      "socioEconomic": "Low Income",
+      "district": "Mangaluru",
+      "address": "Ullal, Mangaluru",
+      "modusOperandi": "Signal jamming, key copying, mechanic bypass",
+      "riskScore": 78,
+      "riskLevel": "High",
+      "priorArrests": 2,
+      "criminalHistory": ["KSP/2026/05120 (Vehicle theft)"],
+      "bankAccounts": [],
+      "networkTies": ["A-1301 (Partner)"]
+    }
+  ],
+  "victims": [
+    {
+      "id": "V-5001",
+      "name": "S. K. Ranganathan",
+      "age": 68,
+      "gender": "Male",
+      "socioEconomic": "Retired Bank Manager",
+      "education": "Graduate",
+      "address": "Indiranagar, Bengaluru",
+      "caseId": "KSP/2026/04431"
+    },
+    {
+      "id": "V-5002",
+      "name": "Preeti Gowda",
+      "age": 32,
+      "gender": "Female",
+      "socioEconomic": "Homemaker",
+      "education": "High School",
+      "address": "Kuchela Layout, Mysuru",
+      "caseId": "KSP/2026/04108"
+    },
+    {
+      "id": "V-5003",
+      "name": "Basappa Patil",
+      "age": 54,
+      "gender": "Male",
+      "socioEconomic": "Farmer",
+      "education": "Middle School",
+      "address": "Devenahalli, Bengaluru Rural",
+      "caseId": "KSP/2026/03977"
+    },
+    {
+      "id": "V-5004",
+      "name": "Dr. Amita Rao",
+      "age": 45,
+      "gender": "Female",
+      "socioEconomic": "Medical Practitioner",
+      "education": "Post Graduate",
+      "address": "Jayanagar, Bengaluru",
+      "caseId": "KSP/2026/03977"
+    },
+    {
+      "id": "V-5005",
+      "name": "Ananya Hegde",
+      "age": 22,
+      "gender": "Female",
+      "socioEconomic": "Student",
+      "education": "B.Com Student",
+      "address": "Mysuru Central, Mysuru",
+      "caseId": "KSP/2026/01874"
+    },
+    {
+      "id": "V-5006",
+      "name": "TechPro Solutions India",
+      "age": 8,
+      "gender": "Non-binary",
+      "socioEconomic": "Corporate Entity",
+      "education": "N/A",
+      "address": "ITPB, Whitefield, Bengaluru",
+      "caseId": "KSP/2026/05501"
+    },
+    {
+      "id": "V-5007",
+      "name": "Somasekhar Kamath",
+      "age": 41,
+      "gender": "Male",
+      "socioEconomic": "Business Owner",
+      "education": "Graduate",
+      "address": "Mangaluru South",
+      "caseId": "KSP/2026/05120"
+    },
+    {
+      "id": "V-5008",
+      "name": "Gopalkrishna Deshpande",
+      "age": 73,
+      "gender": "Male",
+      "socioEconomic": "Retired Professor (NRI)",
+      "education": "PhD",
+      "address": "Dharwad Town",
+      "caseId": "KSP/2026/04910"
+    }
+  ],
+  "witnesses": [
+    {
+      "id": "W-6001",
+      "name": "Telecom Store Exec (Amit)",
+      "contact": "+91-9988771122",
+      "statement": "The accused presented a fake Aadhaar card to request duplicate SIM reactivation under the victim's name.",
+      "caseId": "KSP/2026/04431"
+    },
+    {
+      "id": "W-6002",
+      "name": "Dr. Leela (Neighbor)",
+      "contact": "+91-8877661100",
+      "statement": "Heard screams from the adjacent house and saw Raghavendra locking the victim inside.",
+      "caseId": "KSP/2026/04108"
+    },
+    {
+      "id": "W-6003",
+      "name": "Naveen Prasad",
+      "contact": "+91-9008811223",
+      "statement": "Worked as tele-caller for the startup, did not know investments were routed to Karthik's personal account.",
+      "caseId": "KSP/2026/03977"
+    },
+    {
+      "id": "W-6004",
+      "name": "Security Guard (Karun)",
+      "contact": "+91-9448831122",
+      "statement": "Saw Vikram hand over a duffel bag to Manjunath Swamy behind the airport logistics terminal.",
+      "caseId": "KSP/2026/02991"
+    },
+    {
+      "id": "W-6005",
+      "name": "Prashant K. (IT Admin)",
+      "contact": "+91-9986510022",
+      "statement": "Discovered the ransom note inside the root controller directories on server login.",
+      "caseId": "KSP/2026/05501"
+    },
+    {
+      "id": "W-6006",
+      "name": "Shrikant Bhat (Notary)",
+      "contact": "+91-9844221102",
+      "statement": "Raghavendra Hegde brought the stamp paper claiming it was signed by Deshpande prior to his flight.",
+      "caseId": "KSP/2026/04910"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "TXN-9081",
+      "sourceAccount": "9901-2244-12 (Karthik Gowda)",
+      "destAccount": "4412-9901-09 (Manjunath Swamy)",
+      "amount": 500000,
+      "date": "2026-06-16",
+      "type": "IMPS Transfer",
+      "status": "Completed",
+      "flagged": true,
+      "notes": "Coincides with Phishing theft. Suspected Hawala layer."
+    },
+    {
+      "id": "TXN-9082",
+      "sourceAccount": "5512-8812-44 (Karthik Gowda)",
+      "destAccount": "8823-1102-45 (Nisha Kulkarni)",
+      "amount": 75000,
+      "date": "2026-02-15",
+      "type": "UPI Payment",
+      "status": "Completed",
+      "flagged": false,
+      "notes": "Consultancy fee payout."
+    },
+    {
+      "id": "TXN-9083",
+      "sourceAccount": "4412-9901-09 (Manjunath Swamy)",
+      "destAccount": "1029-4402-99 (Vikram D'Souza)",
+      "amount": 120000,
+      "date": "2026-03-02",
+      "type": "Cash Deposit",
+      "status": "Completed",
+      "flagged": true,
+      "notes": "Suspected courier logistics payout."
+    },
+    {
+      "id": "TXN-9084",
+      "sourceAccount": "4412-9901-09 (Manjunath Swamy)",
+      "destAccount": "3302-8811-92 (Raghavendra Hegde)",
+      "amount": 350000,
+      "date": "2026-06-09",
+      "type": "RTGS Transfer",
+      "status": "Completed",
+      "flagged": true,
+      "notes": "Property registration kickback."
+    },
+    {
+      "id": "TXN-9085",
+      "sourceAccount": "V-5001 (Ranganathan)",
+      "destAccount": "9901-2244-12 (Karthik Gowda)",
+      "amount": 800000,
+      "date": "2026-06-15",
+      "type": "NEFT Transfer",
+      "status": "Completed",
+      "flagged": true,
+      "notes": "Unlawful transfer under Phishing Case."
+    },
+    {
+      "id": "TXN-9086",
+      "sourceAccount": "V-5001 (Ranganathan)",
+      "destAccount": "5512-8812-44 (Karthik Gowda)",
+      "amount": 700000,
+      "date": "2026-06-15",
+      "type": "NEFT Transfer",
+      "status": "Completed",
+      "flagged": true,
+      "notes": "Unlawful transfer under Phishing Case."
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "H-201",
+      "district": "Bengaluru Urban",
+      "area": "Indiranagar Metro & 100ft Rd",
+      "lat": 12.971899,
+      "lng": 77.641151,
+      "density": 88,
+      "riskLevel": "High",
+      "primaryType": "Cyber Crime (Phishing/WiFi Snooping)",
+      "recommendation": "Deploy mobile cyber patrol vans & public cyber safety flyers."
+    },
+    {
+      "id": "H-202",
+      "district": "Bengaluru Urban",
+      "area": "Yeshwanthpur Junction",
+      "lat": 13.0234,
+      "lng": 77.5502,
+      "density": 72,
+      "riskLevel": "High",
+      "primaryType": "Financial Smuggling / Warehousing",
+      "recommendation": "Surveillance around godowns and transport hubs. Enhanced night vehicle frisking."
+    },
+    {
+      "id": "H-203",
+      "district": "Mysuru",
+      "area": "Kuvempunagar Park Area",
+      "lat": 12.2908,
+      "lng": 76.6214,
+      "density": 45,
+      "riskLevel": "Medium",
+      "primaryType": "Women Safety / Stalking",
+      "recommendation": "Enhanced pink patrol presence during evening hours (6:00 PM - 10:00 PM)."
+    },
+    {
+      "id": "H-204",
+      "district": "Mangaluru",
+      "area": "Hampankatta Commercial Area",
+      "lat": 12.8719,
+      "lng": 74.8428,
+      "density": 65,
+      "riskLevel": "High",
+      "primaryType": "Vehicle Theft / Smuggling",
+      "recommendation": "Mandatory parking CCTV logging and entry-point checkpoint inspections."
+    },
+    {
+      "id": "H-205",
+      "district": "Hubballi-Dharwad",
+      "area": "Dharwad Court Compound",
+      "lat": 15.4589,
+      "lng": 75.0078,
+      "density": 38,
+      "riskLevel": "Medium",
+      "primaryType": "Forgery & Document Scams",
+      "recommendation": "Mandatory biometric verification for document registration."
+    }
+  ],
+  "demographics": {
+    "districts": [
+      {
+        "name": "Bengaluru Urban",
+        "urbanizationRate": 93.4,
+        "migrationInflow": 280000,
+        "unemploymentTech": 14.5,
+        "literacyRate": 88.9,
+        "economicStressIndex": 68,
+        "crimeTypes": {
+          "Cyber Crime": 4200,
+          "Financial Crimes": 1850,
+          "Theft": 3200,
+          "Women Safety": 1100
+        }
+      },
+      {
+        "name": "Mysuru",
+        "urbanizationRate": 52.3,
+        "migrationInflow": 45000,
+        "unemploymentTech": 8.2,
+        "literacyRate": 82.1,
+        "economicStressIndex": 42,
+        "crimeTypes": {
+          "Cyber Crime": 850,
+          "Financial Crimes": 310,
+          "Theft": 1400,
+          "Women Safety": 950
+        }
+      },
+      {
+        "name": "Mangaluru",
+        "urbanizationRate": 68.1,
+        "migrationInflow": 95000,
+        "unemploymentTech": 9.5,
+        "literacyRate": 90.2,
+        "economicStressIndex": 55,
+        "crimeTypes": {
+          "Cyber Crime": 1100,
+          "Financial Crimes": 980,
+          "Theft": 1900,
+          "Women Safety": 750
+        }
+      },
+      {
+        "name": "Hubballi-Dharwad",
+        "urbanizationRate": 58.7,
+        "migrationInflow": 60000,
+        "unemploymentTech": 11.2,
+        "literacyRate": 80.6,
+        "economicStressIndex": 61,
+        "crimeTypes": {
+          "Cyber Crime": 650,
+          "Financial Crimes": 450,
+          "Theft": 1500,
+          "Women Safety": 820
+        }
+      }
+    ],
+    "insights": [
+      "Rapid urbanization in Bengaluru Urban correlates with a 38% increase in sim-swap and financial phishing campaigns targeting senior citizens.",
+      "High rates of tech dropouts and economically stressed young graduates correspond directly with the cluster of developer associates (Cyber Crime MOs).",
+      "Districts with low urbanization rates but high economic stress (e.g. Hubballi-Dharwad) show larger proportions of land grabbing and document forgery incidents.",
+      "Migrant hubs near port terminals in Mangaluru show elevated counts of logistic coordination nodes in cross-border smuggling trails."
+    ]
+  },
+  "evidence": [
+    {
+      "id": "E-8001",
+      "name": "CDR log (Karthik Gowda)",
+      "type": "CSV Document",
+      "hash": "SHA256:d83b92...8fa11",
+      "caseId": "KSP/2026/04431",
+      "uploadedBy": "Insp. Kumar (Cyber Cell)",
+      "uploadedDate": "2026-06-16",
+      "status": "Verified in Court",
+      "chainOfCustody": [
+        "2026-06-16 10:00 - Retrieved from Airtel Nodal Officer by Insp. Kumar",
+        "2026-06-16 11:30 - Hashed and sealed in Cyber forensics vault",
+        "2026-06-20 14:00 - Presented to Magistrate"
+      ]
+    },
+    {
+      "id": "E-8002",
+      "name": "CCTV Footage (Telecom Store Indiranagar)",
+      "type": "Video MP4",
+      "hash": "SHA256:bb012...fa30",
+      "caseId": "KSP/2026/04431",
+      "uploadedBy": "Insp. Kumar (Cyber Cell)",
+      "uploadedDate": "2026-06-17",
+      "status": "Under Analysis",
+      "chainOfCustody": [
+        "2026-06-17 16:00 - Extracted from shop storage card by Constable Patil",
+        "2026-06-17 18:30 - Copied to secure digital evidence locker"
+      ]
+    },
+    {
+      "id": "E-8003",
+      "name": "Threat WhatsApp Transcript",
+      "type": "PDF Export",
+      "hash": "SHA256:ee412...3312",
+      "caseId": "KSP/2026/04108",
+      "uploadedBy": "Insp. M. Gowda (Mysuru East)",
+      "uploadedDate": "2026-05-22",
+      "status": "Verified in Court",
+      "chainOfCustody": [
+        "2026-05-22 09:30 - Acquired from victim's phone",
+        "2026-05-22 11:00 - Forensic image created"
+      ]
+    },
+    {
+      "id": "E-8004",
+      "name": "Dummy Company Registration Deeds",
+      "type": "Scan Document PDF",
+      "hash": "SHA256:ee041...ff99",
+      "caseId": "KSP/2026/03977",
+      "uploadedBy": "Insp. S. Patil (Wilson Garden)",
+      "uploadedDate": "2026-04-15",
+      "status": "Verified in Court",
+      "chainOfCustody": [
+        "2026-04-15 14:00 - Seized from Malleshwaram Office Raid"
+      ]
+    },
+    {
+      "id": "E-8005",
+      "name": "Gold Paste Seizure Memo",
+      "type": "PDF Scan Document",
+      "hash": "SHA256:9901b...cc12",
+      "caseId": "KSP/2026/02991",
+      "uploadedBy": "Insp. D. Kamath (Mangaluru North)",
+      "uploadedDate": "2026-03-02",
+      "status": "Verified in Court",
+      "chainOfCustody": [
+        "2026-03-01 23:30 - Weighment and packing in custom bag"
+      ]
+    }
+  ],
+  "predictions": {
+    "forecast": [
+      { "month": "Jan 2026", "actual": 880, "forecasted": 890 },
+      { "month": "Feb 2026", "actual": 910, "forecasted": 900 },
+      { "month": "Mar 2026", "actual": 940, "forecasted": 930 },
+      { "month": "Apr 2026", "actual": 1050, "forecasted": 1020 },
+      { "month": "May 2026", "actual": 1120, "forecasted": 1100 },
+      { "month": "Jun 2026", "actual": 1180, "forecasted": 1190 },
+      { "month": "Jul 2026", "actual": null, "forecasted": 1250 },
+      { "month": "Aug 2026", "actual": null, "forecasted": 1290 },
+      { "month": "Sep 2026", "actual": null, "forecasted": 1340 }
+    ],
+    "alerts": [
+      {
+        "id": "AL-501",
+        "severity": "Critical",
+        "title": "Cyber Fraud Spike Predicted in Bengaluru Urban",
+        "description": "Historical patterns and recent SIM swap registry logs indicate a high risk (89%) of a financial fraud spike around upcoming festival weekends due to inactive bank support counters.",
+        "district": "Bengaluru Urban",
+        "type": "Cyber Crime"
+      },
+      {
+        "id": "AL-502",
+        "severity": "Warning",
+        "title": "Suspected Gold Paste Smuggling Influx (Mangaluru Airport)",
+        "description": "Coordinated patterns show repeat operations at passenger ports every 45-60 days. Current models suggest next arrival window within July 20-25.",
+        "district": "Mangaluru",
+        "type": "Financial Crimes"
+      },
+      {
+        "id": "AL-503",
+        "severity": "Info",
+        "title": "Seasonal Property Forgery Influx in Dharwad Hub",
+        "description": "Registration audit alerts detect unusual notary signatures matching the signature profiles in KSP/2026/04910.",
+        "district": "Hubballi-Dharwad",
+        "type": "Financial Crimes"
+      }
+    ]
+  },
+  "auditLogs": [
+    {
+      "timestamp": "2026-07-16 15:44:12",
+      "user": "officer_kumar",
+      "role": "investigator",
+      "action": "View Accused A-1193",
+      "ip": "10.152.12.92"
+    },
+    {
+      "timestamp": "2026-07-16 15:45:00",
+      "user": "officer_kumar",
+      "role": "investigator",
+      "action": "Chat Query: Show all FIRs in Bengaluru",
+      "ip": "10.152.12.92"
+    },
+    {
+      "timestamp": "2026-07-16 15:46:18",
+      "user": "supervisor_patil",
+      "role": "supervisor",
+      "action": "Approve Evidence Hash (SHA256:d83b92...8fa11)",
+      "ip": "10.152.12.11"
+    }
+  ]
+}
