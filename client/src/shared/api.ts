@@ -143,6 +143,7 @@ export interface AuditLog {
 export interface ChatResponse {
   response?: string;
   citations?: any[];
+  caseFiles?: FIR[];
   sqlQuery?: string;
   dataSummary?: string;
   policeReport?: string;
@@ -414,12 +415,13 @@ export const api = {
         return {
           response: text,
           citations: [{ id: caseMatch.id, title: caseMatch.title }],
+          caseFiles: [caseMatch],
           sqlQuery: `SELECT * FROM firs WHERE id = '${caseMatch.id}' LIMIT 1;`,
           dataSummary: `Retrieved official record for case ${caseMatch.id}.`,
           reasoningPath: [
             `Identified case reference ${caseMatch.id} in query string.`,
             `Cross-referenced FIR record with accused and evidence tables.`,
-            `Compiled verified intelligence response.`
+            `Compiled verified intelligence response with attached digital case file.`
           ]
         };
       }
@@ -434,12 +436,13 @@ export const api = {
         return {
           response: text,
           citations: mockAccused.map(a => ({ id: a.id, title: a.name })),
+          caseFiles: mockFirs.slice(0, 3),
           sqlQuery: `SELECT id, name, district, riskScore, priorArrests FROM accused WHERE priorArrests >= 2 ORDER BY riskScore DESC;`,
           dataSummary: `Found ${mockAccused.length} registered high-risk repeat offenders.`,
           reasoningPath: [
             `Queried suspect database for prior arrest history >= 2.`,
             `Sorted records by threat risk score index.`,
-            `Generated officer surveillance brief.`
+            `Generated officer surveillance brief with associated case files.`
           ]
         };
       }
@@ -454,6 +457,7 @@ export const api = {
         return {
           response: text,
           citations: mockHotspots.map(h => ({ id: h.id, title: h.area })),
+          caseFiles: mockFirs.filter(f => f.severity === 'High').slice(0, 3),
           sqlQuery: `SELECT area, district, density, primaryType FROM hotspots ORDER BY density DESC;`,
           dataSummary: `Compiled 5 active geospatial crime clusters across Karnataka.`,
           reasoningPath: [
@@ -474,6 +478,7 @@ export const api = {
         return {
           response: text,
           citations: mockTransactions.map(t => ({ id: t.id, title: `${t.sender} transaction` })),
+          caseFiles: mockFirs.filter(f => f.type === 'Financial Crimes' || f.type === 'Cyber Crime'),
           sqlQuery: `SELECT id, amount, sender, receiver, riskScore, status FROM transactions WHERE riskScore > 85;`,
           dataSummary: `Intercepted ₹74,50,000 in flagged suspicious transfers.`,
           reasoningPath: [
@@ -489,10 +494,11 @@ export const api = {
         q.includes(f.district.toLowerCase()) || 
         q.includes(f.type.toLowerCase()) || 
         q.includes(f.policeStation.toLowerCase()) ||
+        q.includes(f.location.toLowerCase()) ||
         q.includes(f.status.toLowerCase())
       );
 
-      const displayFirs = matchedFirs.length > 0 ? matchedFirs : mockFirs.slice(0, 5);
+      const displayFirs = matchedFirs.length > 0 ? matchedFirs : mockFirs.slice(0, 4);
       const caseList = displayFirs.map(f => `- **${f.id}**: ${f.title} (${f.district}) | Status: **${f.status}** | Severity: **${f.severity}**`).join('\n');
 
       const totalCount = mockFirs.length;
@@ -500,18 +506,19 @@ export const api = {
       const solvedCount = mockFirs.filter(f => f.status === 'Solved').length;
 
       const summaryText = isKn
-        ? `ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್ ಮಾಹಿತಿ ಸಾರಾಂಶ:\n\n- ದಾಖಲಾದ ಒಟ್ಟು ಪ್ರಕರಣಗಳು: **${totalCount}**\n- ಮುಕ್ತ ಪ್ರಕರಣಗಳು (Open): **${openCount}** | ಪರಿಹರಿಸಿದ ಪ್ರಕರಣಗಳು (Solved): **${solvedCount}**\n\n**ಸಂಬಂಧಿತ ಪ್ರಕರಣಗಳ ಪಟ್ಟಿ:**\n${caseList}\n\n- ಹೆಚ್ಚಿನ ತನಿಖೆಗೆ ನಿರ್ದಿಷ್ಟ ಪ್ರಕರಣದ ಐಡಿ (ಉದಾ: KSP/2026/04431) ಬಳಸಿ ವಿಚಾರಿಸಿ.`
-        : `**KARNATAKA STATE POLICE - INTELLIGENCE SUMMARY**\n\n- **Total Database Cases:** ${totalCount} FIRs\n- **Active Open Cases:** ${openCount} | **Solved Cases:** ${solvedCount}\n\n**Relevant FIR Case Records:**\n${caseList}\n\n- **Recommendation:** Type any specific Case ID (e.g., \`KSP/2026/04431\`) or suspect name to fetch deeper dossier records.`;
+        ? `ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್ ಮಾಹಿತಿ ಸಾರಾಂಶ:\n\n- ದಾಖಲಾದ ಒಟ್ಟು ಪ್ರಕರಣಗಳು: **${totalCount}**\n- ಮುಕ್ತ ಪ್ರಕರಣಗಳು (Open): **${openCount}** | ಪರಿಹರಿಸಿದ ಪ್ರಕರಣಗಳು (Solved): **${solvedCount}**\n\n**ಸಂಬಂಧಿತ ಪ್ರಕರಣಗಳ ಪಟ್ಟಿ:**\n${caseList}\n\n- ನಿಯಂತ್ರಣ ಕೊಠಡಿ ಶಿಫಾರಸು: ಸಂಬಂಧಿತ ಡಿಜಿಟಲ್ ಪ್ರಕರಣದ ಫೈಲ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು ಕೆಳಗಿನ ಬಟನ್ ಬಳಸಿ.`
+        : `**KARNATAKA STATE POLICE - INTELLIGENCE SUMMARY**\n\n- **Total Database Cases:** ${totalCount} FIRs\n- **Active Open Cases:** ${openCount} | **Solved Cases:** ${solvedCount}\n\n**Relevant FIR Case Records:**\n${caseList}\n\n- **Attached Documents:** Download the official digital FIR case file below.`;
 
       return {
         response: summaryText,
         citations: displayFirs.map(f => ({ id: f.id, title: f.title })),
+        caseFiles: displayFirs,
         sqlQuery: `SELECT id, title, district, status, severity FROM firs WHERE description LIKE '%${message}%' OR district LIKE '%${message}%';`,
         dataSummary: `Compiled intelligence summary for query: "${message}".`,
         reasoningPath: [
           `Parsed natural language query intent and location filters.`,
           `Executed database search across FIRs, accused, and evidence tables.`,
-          `Synthesized verified police intelligence report.`
+          `Synthesized verified police intelligence report with official case attachments.`
         ]
       };
     }

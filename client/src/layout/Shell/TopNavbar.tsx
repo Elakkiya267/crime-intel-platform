@@ -12,6 +12,16 @@ export default function TopNavbar({ onToggleMobileMenu, currentLang = 'EN', onTo
   const username = localStorage.getItem('ksp-user-name') || 'KSP Officer';
   const role = localStorage.getItem('ksp-user-role') || 'Investigator';
   const navigate = useNavigate();
+  const [globalSearch, setGlobalSearch] = React.useState('');
+
+  const handleGlobalSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (globalSearch.trim()) {
+      navigate(`/cases?search=${encodeURIComponent(globalSearch.trim())}`);
+    } else {
+      navigate('/cases');
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('ksp-token');
@@ -48,18 +58,16 @@ export default function TopNavbar({ onToggleMobileMenu, currentLang = 'EN', onTo
           <Menu className="h-4 w-4" />
         </button>
 
-        <div className="flex items-center gap-2">
+        <form onSubmit={handleGlobalSearch} className="flex items-center gap-2">
           <Search className="h-4 w-4 text-slate-400" />
           <input
+            type="text"
+            value={globalSearch}
+            onChange={(e) => setGlobalSearch(e.target.value)}
             className="w-[180px] sm:w-[260px] md:w-[300px] max-w-[45vw] rounded-xl border border-[#E2E8F0] bg-slate-50/50 px-3 py-1.5 text-xs outline-none focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-500/20 transition-all"
-            placeholder="Global Case Lookup..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                navigate('/cases');
-              }
-            }}
+            placeholder="Global Case Lookup (e.g. Bengaluru, Cyber)..."
           />
-        </div>
+        </form>
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-2">

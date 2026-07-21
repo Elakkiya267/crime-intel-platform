@@ -1,13 +1,14 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { api, ChatResponse } from '../api';
-import { Send, Trash2, Mic, Download, Sparkles, Paperclip, X, FileText, Image as ImageIcon, Plus, ChevronDown, ChevronUp, Clock } from 'lucide-react';
+import { api, ChatResponse, FIR } from '../api';
+import { Send, Trash2, Mic, Download, Sparkles, Paperclip, X, FileText, Image as ImageIcon, Plus, ChevronDown, ChevronUp, Clock, Eye } from 'lucide-react';
 
 type ChatMessage = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   citations?: any[];
+  caseFiles?: FIR[];
   reasoningPath?: string[];
   sqlQuery?: string;
 };
@@ -309,6 +310,7 @@ export default function CopilotChat() {
         role: 'assistant',
         content: cleanText,
         citations: response.citations,
+        caseFiles: response.caseFiles,
         reasoningPath: response.reasoningPath,
         sqlQuery: response.sqlQuery,
       };
@@ -477,6 +479,52 @@ export default function CopilotChat() {
                   ) : (
                     <div className="space-y-3">
                       <FormattedMessage content={m.content} />
+
+                      {/* Attached Official Case Files Cards */}
+                      {m.caseFiles && m.caseFiles.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                          <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+                            <FileText className="h-4 w-4 text-primary-600" />
+                            <span>Attached Verified Case Files ({m.caseFiles.length})</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {m.caseFiles.map((file) => (
+                              <div
+                                key={file.id}
+                                className="rounded-xl border border-slate-200 bg-slate-50/80 p-3 space-y-1.5 text-xs hover:border-primary-300 transition shadow-2xs"
+                              >
+                                <div className="flex justify-between items-start">
+                                  <span className="font-extrabold text-primary-700 font-mono text-[11px]">{file.id}</span>
+                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                                    file.severity === 'High' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                                  }`}>
+                                    {file.severity}
+                                  </span>
+                                </div>
+                                <div className="font-bold text-slate-800 line-clamp-1">{file.title}</div>
+                                <div className="text-[10px] text-slate-500 font-medium">📍 {file.district} ({file.policeStation})</div>
+                                <div className="flex items-center justify-between pt-1 gap-1">
+                                  <button
+                                    onClick={() => downloadReport(`OFFICIAL FIR CASE FILE\nCase Reference: ${file.id}\nTitle: ${file.title}\nJurisdiction: ${file.district} (${file.policeStation})\nStatus: ${file.status}\nSeverity Level: ${file.severity}\nFiling Date: ${file.date} ${file.time}\nModus Operandi: ${file.modusOperandi}\n\nNARRATIVE DESCRIPTION:\n${file.description}`, file.id)}
+                                    className="flex items-center gap-1 px-2 py-1 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-[10px] font-bold text-slate-700 transition"
+                                    title="Download FIR Attachment"
+                                  >
+                                    <Download className="h-3 w-3 text-primary-600" />
+                                    <span>Download FIR</span>
+                                  </button>
+                                  <button
+                                    onClick={() => navigate(`/cases?caseId=${file.id}`)}
+                                    className="flex items-center gap-1 px-2 py-1 bg-primary-600 hover:bg-primary-700 rounded-lg text-[10px] font-bold text-white transition"
+                                  >
+                                    <Eye className="h-3 w-3" />
+                                    <span>Inspect</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Expandable Reasoning Path & SQL Query Audit */}
                       {(m.reasoningPath || m.sqlQuery) && (

@@ -2,8 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import KPIGrid from '../../shared/KPIGrid/KPIGrid';
 import ActivityFeed from '../../shared/ActivityFeed/ActivityFeed';
-import { api, mockFirs, mockAccused, mockHotspots, mockTransactions } from '../../shared/api';
-import { Shield, Sparkles, TrendingUp, AlertCircle, Filter, RefreshCw } from 'lucide-react';
+import { api, mockFirs, mockAccused, mockHotspots, FIR } from '../../shared/api';
+import { Sparkles, TrendingUp, AlertCircle, Filter, RefreshCw, Search, Eye, FileText, CheckCircle2, Clock } from 'lucide-react';
 
 interface DashboardData {
   kpis: {
@@ -23,10 +23,13 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Quick Filter States
+  // Quick Filter & Place Search States
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
+
+  const [inspectingCase, setInspectingCase] = useState<FIR | null>(null);
 
   useEffect(() => {
     api.getDashboard()
@@ -40,20 +43,39 @@ export default function DashboardPage() {
       });
   }, []);
 
-  // Compute filtered dashboard view dynamically based on Quick Filters
-  const filteredMetrics = useMemo(() => {
-    let filteredFirs = [...mockFirs];
+  // Compute filtered FIR cases matching search query and quick filters
+  const filteredFirs = useMemo(() => {
+    let results = [...mockFirs];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      results = results.filter(f =>
+        f.id.toLowerCase().includes(q) ||
+        f.title.toLowerCase().includes(q) ||
+        f.description.toLowerCase().includes(q) ||
+        f.district.toLowerCase().includes(q) ||
+        f.policeStation.toLowerCase().includes(q) ||
+        f.location.toLowerCase().includes(q) ||
+        f.type.toLowerCase().includes(q) ||
+        f.modusOperandi.toLowerCase().includes(q)
+      );
+    }
 
     if (selectedDistrict !== 'All') {
-      filteredFirs = filteredFirs.filter(f => f.district === selectedDistrict);
+      results = results.filter(f => f.district === selectedDistrict);
     }
     if (selectedType !== 'All') {
-      filteredFirs = filteredFirs.filter(f => f.type === selectedType);
+      results = results.filter(f => f.type === selectedType);
     }
     if (selectedStatus !== 'All') {
-      filteredFirs = filteredFirs.filter(f => f.status === selectedStatus);
+      results = results.filter(f => f.status === selectedStatus);
     }
 
+    return results;
+  }, [searchQuery, selectedDistrict, selectedType, selectedStatus]);
+
+  // Compute filtered dashboard view dynamically based on Quick Filters & Search
+  const filteredMetrics = useMemo(() => {
     let filteredAccused = [...mockAccused];
     if (selectedDistrict !== 'All') {
       filteredAccused = filteredAccused.filter(a => a.district === selectedDistrict);
@@ -92,7 +114,7 @@ export default function DashboardPage() {
         { type: 'Theft', count: theftCount }
       ]
     };
-  }, [selectedDistrict, selectedType, selectedStatus]);
+  }, [filteredFirs, selectedDistrict]);
 
   if (loading || !data) {
     return (
@@ -123,6 +145,7 @@ export default function DashboardPage() {
   const colors = ['bg-indigo-500', 'bg-rose-500', 'bg-emerald-500', 'bg-amber-500'];
 
   const resetFilters = () => {
+    setSearchQuery('');
     setSelectedDistrict('All');
     setSelectedType('All');
     setSelectedStatus('All');
@@ -153,14 +176,14 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Filters Bar */}
+      {/* Quick Filters Bar & Place Search Input */}
       <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-soft space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#F1F5F9] pb-3">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-primary-600" />
-            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Dashboard Quick Filters</h2>
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Dashboard Place Search & Quick Filters</h2>
           </div>
-          {(selectedDistrict !== 'All' || selectedType !== 'All' || selectedStatus !== 'All') && (
+          {(searchQuery || selectedDistrict !== 'All' || selectedType !== 'All' || selectedStatus !== 'All') && (
             <button
               onClick={resetFilters}
               className="flex items-center gap-1 text-xs font-bold text-rose-600 hover:underline"
@@ -171,7 +194,19 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Place & Location Search Box */}
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search place / location (e.g. Bengaluru, Indiranagar, Peenya, Mysuru, Mangaluru, Cyber)..."
+            className="w-full rounded-xl border border-[#E2E8F0] bg-slate-50/50 pl-10 pr-4 py-2 text-xs sm:text-sm font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-primary-500/20"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
           {/* District Filter */}
           <div>
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Filter District</label>
@@ -182,10 +217,14 @@ export default function DashboardPage() {
             >
               <option value="All">All Districts</option>
               <option value="Bengaluru Urban">Bengaluru Urban</option>
+              <option value="Bengaluru Rural">Bengaluru Rural</option>
               <option value="Mysuru">Mysuru</option>
               <option value="Mangaluru">Mangaluru</option>
-              <option value="Bengaluru Rural">Bengaluru Rural</option>
               <option value="Hubballi-Dharwad">Hubballi-Dharwad</option>
+              <option value="Tumakuru">Tumakuru</option>
+              <option value="Belagavi">Belagavi</option>
+              <option value="Kalaburagi">Kalaburagi</option>
+              <option value="Udupi">Udupi</option>
             </select>
           </div>
 
@@ -222,8 +261,53 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Grid (Reflects Active Filters) */}
+      {/* KPI Grid (Reflects Active Filters & Place Search) */}
       <KPIGrid metrics={filteredMetrics.kpis} />
+
+      {/* Filtered FIR Cases List Displayed Directly on Dashboard */}
+      <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-soft space-y-3">
+        <div className="flex items-center justify-between pb-3 border-b border-[#F1F5F9]">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-primary-600" />
+            <h2 className="text-sm font-semibold text-slate-800">
+              Matching Cases for Selected Location & Filters ({filteredFirs.length})
+            </h2>
+          </div>
+          <Link to="/cases" className="text-xs font-bold text-primary-600 hover:underline">
+            View All in Master Registry →
+          </Link>
+        </div>
+
+        {filteredFirs.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-400 font-semibold">
+            No matching case records found for place "{searchQuery}". Click "Reset Filters" above.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredFirs.slice(0, 6).map((c) => (
+              <div
+                key={c.id}
+                onClick={() => setInspectingCase(c)}
+                className="cursor-pointer rounded-xl border border-[#E2E8F0] p-3.5 hover:border-primary-300 hover:bg-primary-50/20 transition space-y-2 text-xs"
+              >
+                <div className="flex justify-between items-start">
+                  <span className="font-extrabold text-primary-700 font-mono">{c.id}</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    c.status === 'Solved' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                  }`}>
+                    {c.status}
+                  </span>
+                </div>
+                <div className="font-bold text-slate-800 line-clamp-1">{c.title}</div>
+                <div className="text-slate-500 font-medium flex justify-between text-[11px]">
+                  <span>📍 {c.district} ({c.policeStation})</span>
+                  <span>{c.date}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Analytics Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -366,6 +450,31 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Inspection Modal */}
+      {inspectingCase && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-[#E2E8F0] p-6 max-w-xl w-full space-y-4 shadow-2xl">
+            <div className="flex justify-between items-start border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-600">Inspecting Case File</span>
+                <h3 className="text-base font-bold text-slate-800">{inspectingCase.id}: {inspectingCase.title}</h3>
+              </div>
+              <button onClick={() => setInspectingCase(null)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            <div className="text-xs space-y-2 text-slate-700">
+              <div>📍 <strong>District:</strong> {inspectingCase.district} ({inspectingCase.policeStation})</div>
+              <div>📅 <strong>Filing Date:</strong> {inspectingCase.date} at {inspectingCase.time}</div>
+              <div>🚨 <strong>Severity:</strong> {inspectingCase.severity} | <strong>Status:</strong> {inspectingCase.status}</div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 font-semibold">{inspectingCase.description}</div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button onClick={() => setInspectingCase(null)} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Close</button>
+              <Link to={`/cases?caseId=${inspectingCase.id}`} className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-xs font-bold">Open Full Registry Dossier</Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
