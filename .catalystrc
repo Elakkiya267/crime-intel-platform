@@ -1,3 +1,36 @@
 {
-  "project": "54526000000013050"
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "54526000000013050",
+      "name": "datathon",
+      "domain": {
+        "id": "50044144517",
+        "name": "datathon-60078971520.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60078971520",
+          "name": "Development",
+          "type": 3
+        },
+        {
+          "idx": 2,
+          "id": "50044202926",
+          "name": "Production",
+          "type": 1
+        }
+      ]
+    }
+  ]
 }

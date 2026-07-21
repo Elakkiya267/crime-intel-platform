@@ -1,13 +1,12 @@
 {
-  "project": "54526000000013050",
   "client": {
     "source": "client/dist"
   },
   "appsail": [
     {
       "name": "ksp-crime-intel-server",
-      "path": "server",
-      "source": "server"
+      "source": "server",
+      "build_path": "server"
     }
   ]
 }
