@@ -19,11 +19,35 @@ cd client
 npm run build
 ```
 
-## Deploy to Zoho Catalyst
+## Zoho Catalyst Exclusive Deployment
 
-1. Create a Catalyst AppSail/Static Hosting entry (or hosting configured for a SPA build).
-2. Upload the `dist/` output.
-3. Set environment variables for API base URL and auth.
+This platform is configured specifically for **Zoho Catalyst** deployment (AppSail + Web Client Hosting).
 
-See `docs/CATALYST_DEPLOY.md`.
+- **Catalyst Project Name:** `datathon`
+- **Catalyst Project ID (PID):** `54526000000013050`
+
+### Build & Deploy Steps:
+
+1. **Install Catalyst CLI (if not installed):**
+   ```bash
+   npm install -g zcatalyst-cli
+   ```
+
+2. **Login to Zoho Catalyst:**
+   ```bash
+   catalyst login
+   ```
+
+3. **Build the Web Client:**
+   ```bash
+   npm run build
+   ```
+
+4. **Deploy to Zoho Catalyst:**
+   ```bash
+   catalyst deploy
+   ```
+
+For detailed schema setup, QuickML configuration, and Zia OCR details, refer to [`docs/CATALYST_DEPLOY.md`](file:///c:/Users/admin/Desktop/crime-intel-platform/docs/CATALYST_DEPLOY.md).
+
 

@@ -1,0 +1,11 @@
+{
+  "name": "ksp-crime-intel-datathon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KSP Crime Intelligence Platform deployment configuration for Zoho Catalyst",
+  "scripts": {
+    "build:client": "cd client && npm run build",
+    "build": "npm run build:client",
+    "deploy": "catalyst deploy"
+  }
+}

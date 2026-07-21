@@ -38,15 +38,16 @@ catalyst login
 ```
 *(Select the correct domain, e.g., `.in` for India or `.com` for US depending on where your project was created).*
 
-### Step 3: Initialize the Project Space
+### Step 3: Initialize / Link the Project Space
 From the root of this repository, link the codebase to your Catalyst project space:
 ```bash
 catalyst init
 ```
-1. Select your Catalyst project named **datathon**.
-2. For components, check **Client** and **AppSail**.
+1. Select your Catalyst project: **datathon** (Project ID / PID: `54526000000013050`).
+2. For components, check **Client** (Web Client Hosting) and **AppSail**.
 3. For Client directory, specify `client/dist`.
 4. For AppSail service, select Node.js runtime and specify `server`.
+
 
 The CLI will verify the configuration files (`catalyst.json` and `server/app-config.json`).
 
