@@ -305,7 +305,8 @@ export default function CopilotChat() {
       setMessages((m) => [...m, newAssistantMsg]);
 
       // Stream / typewriter effect
-      const tokens = response.response.split(/(\s+)/);
+      const responseText = response.response || response.policeReport || '';
+      const tokens = responseText.split(/(\s+)/);
       let acc = '';
 
       for (const tk of tokens) {
