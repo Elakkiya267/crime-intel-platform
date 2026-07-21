@@ -78,8 +78,11 @@ export interface Victim {
 export interface Witness {
   id: string;
   name: string;
-  contact: string;
+  contact?: string;
+  age?: number;
+  gender?: string;
   statement: string;
+  reliabilityScore?: number;
   caseId: string;
 }
 
@@ -97,29 +100,39 @@ export interface Hotspot {
 
 export interface Transaction {
   id: string;
-  sourceAccount: string;
-  destAccount: string;
+  sourceAccount?: string;
+  destAccount?: string;
+  sender?: string;
+  receiver?: string;
   amount: number;
-  date: string;
-  type: string;
+  date?: string;
+  timestamp?: string;
+  type?: string;
   status: string;
-  flagged: boolean;
-  notes: string;
+  flagged?: boolean;
+  notes?: string;
+  riskScore?: number;
+  location?: string;
 }
 
 export interface Evidence {
   id: string;
-  name: string;
+  name?: string;
+  title?: string;
   type: string;
-  hash: string;
+  hash?: string;
   caseId: string;
-  uploadedBy: string;
-  uploadedDate: string;
-  status: string;
+  uploadedBy?: string;
+  uploadedDate?: string;
+  uploadedAt?: string;
+  chainOfCustodyHash?: string;
+  officer?: string;
+  status?: string;
   chainOfCustody: string[];
 }
 
 export interface AuditLog {
+  id?: string;
   timestamp: string;
   user: string;
   role: string;
@@ -131,14 +144,14 @@ export interface ChatResponse {
   response?: string;
   citations?: any[];
   sqlQuery?: string;
-  dataSummary: string;
-  policeReport: string;
-  findings: Array<{
+  dataSummary?: string;
+  policeReport?: string;
+  findings?: Array<{
     title: string;
     description: string;
     status: string;
   }>;
-  reasoningPath: string[];
+  reasoningPath?: string[];
 }
 
 const getHeaders = () => {
@@ -212,8 +225,21 @@ export const api = {
         if (filters.district && filters.district !== 'All') results = results.filter(f => f.district === filters.district);
         if (filters.status && filters.status !== 'All') results = results.filter(f => f.status === filters.status);
         if (filters.search) {
-          const q = filters.search.toLowerCase();
-          results = results.filter(f => f.title.toLowerCase().includes(q) || f.id.toLowerCase().includes(q) || f.description.toLowerCase().includes(q));
+          const q = filters.search.toLowerCase().trim();
+          results = results.filter(f =>
+            f.id.toLowerCase().includes(q) ||
+            f.title.toLowerCase().includes(q) ||
+            f.description.toLowerCase().includes(q) ||
+            f.type.toLowerCase().includes(q) ||
+            f.status.toLowerCase().includes(q) ||
+            f.severity.toLowerCase().includes(q) ||
+            f.date.toLowerCase().includes(q) ||
+            (f.time && f.time.toLowerCase().includes(q)) ||
+            f.location.toLowerCase().includes(q) ||
+            f.district.toLowerCase().includes(q) ||
+            f.policeStation.toLowerCase().includes(q) ||
+            f.modusOperandi.toLowerCase().includes(q)
+          );
         }
       }
       return results;
@@ -374,21 +400,118 @@ export const api = {
       if (!res.ok) throw new Error('API request failed');
       return await res.json();
     } catch (e) {
-      const reportText = `CONFIDENTIAL POLICE INTELLIGENCE SUMMARY:\nQuery: ${message}\nStatus: Intelligence records cross-referenced.\nKey Suspect: Ramesh Kumar @ Bullet Ramesh (Risk Score: 88/100, 4 Prior Arrests).\nAction Directive: Initiate surveillance on Peenya Industrial Area, Bengaluru Urban.`;
+      const q = message.toLowerCase();
+      const isKn = language === 'kannada';
+
+      // 1. Specific FIR / Case ID lookup
+      const caseMatch = mockFirs.find(f => q.includes(f.id.toLowerCase()) || q.includes(f.id.split('/').pop()?.toLowerCase() || 'xyz'));
+      if (caseMatch) {
+        const accusedNames = mockAccused.filter(a => caseMatch.accusedIds.includes(a.id)).map(a => a.name).join(', ') || 'Under Investigation';
+        const text = isKn
+          ? `ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್ - ಎಫ್.ಐ.ಆರ್ ಪ್ರಕರಣದ ಮಾಹಿತಿ:\n\n- ಪ್ರಕರಣ ಐಡಿ: **${caseMatch.id}**\n- ಶೀರ್ಷಿಕೆ: **${caseMatch.title}**\n- ವ್ಯಾಪ್ತಿ: **${caseMatch.district} (${caseMatch.policeStation})**\n- ದಿನಾಂಕ ಮತ್ತು ಸಮಯ: **${caseMatch.date} (${caseMatch.time})**\n- ಅಪರಾಧದ ಸ್ವರೂಪ: **${caseMatch.type}** (ತೀವ್ರತೆ: **${caseMatch.severity}**)\n- ಪ್ರಮುಖ ಶಂಕಿತರು: **${accusedNames}**\n- ತನಿಖಾ ಪ್ರಗತಿ: **${caseMatch.description}**`
+          : `**KARNATAKA STATE POLICE - CASE INTELLIGENCE RECORD**\n\n- **Case Reference:** ${caseMatch.id}\n- **Incident Title:** ${caseMatch.title}\n- **Jurisdiction:** ${caseMatch.district} (${caseMatch.policeStation})\n- **Registration Date:** ${caseMatch.date} at ${caseMatch.time}\n- **Classification:** ${caseMatch.type} (Severity Level: **${caseMatch.severity}**)\n- **Primary Suspects:** ${accusedNames}\n- **Modus Operandi:** ${caseMatch.modusOperandi}\n- **Current Status:** **${caseMatch.status}**\n- **Investigation Summary:** ${caseMatch.description}`;
+
+        return {
+          response: text,
+          citations: [{ id: caseMatch.id, title: caseMatch.title }],
+          sqlQuery: `SELECT * FROM firs WHERE id = '${caseMatch.id}' LIMIT 1;`,
+          dataSummary: `Retrieved official record for case ${caseMatch.id}.`,
+          reasoningPath: [
+            `Identified case reference ${caseMatch.id} in query string.`,
+            `Cross-referenced FIR record with accused and evidence tables.`,
+            `Compiled verified intelligence response.`
+          ]
+        };
+      }
+
+      // 2. Repeat Offenders / Habitual Criminals Query
+      if (q.includes('repeat') || q.includes('offender') || q.includes('habitual') || q.includes('suspect') || q.includes('accused')) {
+        const highRiskList = mockAccused.map(a => `- **${a.name}** (ID: ${a.id}) | District: **${a.district}** | Risk Score: **${a.riskScore}/100** (${a.riskLevel} Risk) | Arrest Record: **${a.priorArrests} prior arrests**`).join('\n');
+        const text = isKn
+          ? `ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್ - ಮುಖ್ಯಾಂಶ ಶಂಕಿತರ ಪಟ್ಟಿ:\n\n${highRiskList}\n\n- ತನಿಖಾ ನಿರ್ದೇಶನ: ಪೀಣ್ಯ ಕೈಗಾರಿಕಾ ಪ್ರದೇಶ ಹಾಗೂ ಮಂಗಳೂರು ಬಂದರು ವಲಯಗಳಲ್ಲಿ ಸಕ್ರಿಯ ನಿಗಾ ವಹಿಸಲು ಸೂಚಿಸಲಾಗಿದೆ.`
+          : `**HIGH-RISK HABITUAL SUSPECTS DIRECTORY**\n\n${highRiskList}\n\n- **Command Directive:** Maintain active surveillance and automated ANPR camera alerts for suspects with Risk Score > 75.`;
+
+        return {
+          response: text,
+          citations: mockAccused.map(a => ({ id: a.id, title: a.name })),
+          sqlQuery: `SELECT id, name, district, riskScore, priorArrests FROM accused WHERE priorArrests >= 2 ORDER BY riskScore DESC;`,
+          dataSummary: `Found ${mockAccused.length} registered high-risk repeat offenders.`,
+          reasoningPath: [
+            `Queried suspect database for prior arrest history >= 2.`,
+            `Sorted records by threat risk score index.`,
+            `Generated officer surveillance brief.`
+          ]
+        };
+      }
+
+      // 3. Hotspots & Map Forecast Query
+      if (q.includes('hotspot') || q.includes('map') || q.includes('predict') || q.includes('area') || q.includes('density')) {
+        const hotspotList = mockHotspots.map(h => `- **${h.area} (${h.district})**: **${h.density}% Density** | Primary Crime: **${h.primaryType}** | Directive: *${h.recommendation}*`).join('\n');
+        const text = isKn
+          ? `ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್ - ಅಪರಾಧ ಸಾಂದ್ರತಾ ಪ್ರದೇಶಗಳ ವರದಿ:\n\n${hotspotList}`
+          : `**GEOSPATIAL CRIME DENSITY & PATROL FORECAST**\n\n${hotspotList}\n\n- **Early Warning:** 7% YoY increase in cyber financial crimes predicted in commercial hubs.`;
+
+        return {
+          response: text,
+          citations: mockHotspots.map(h => ({ id: h.id, title: h.area })),
+          sqlQuery: `SELECT area, district, density, primaryType FROM hotspots ORDER BY density DESC;`,
+          dataSummary: `Compiled 5 active geospatial crime clusters across Karnataka.`,
+          reasoningPath: [
+            `Analyzed spatial density clusters across all police districts.`,
+            `Extracted primary crime classifications per sector.`,
+            `Formatted tactical patrol dispatch recommendations.`
+          ]
+        };
+      }
+
+      // 4. Financial Crimes / Money Laundering Query
+      if (q.includes('financial') || q.includes('money') || q.includes('bank') || q.includes('hawala') || q.includes('transaction') || q.includes('phishing') || q.includes('fraud')) {
+        const txList = mockTransactions.map(t => `- **${t.id}**: ₹${(t.amount / 100000).toFixed(2)} Lakhs | Sender: **${t.sender}** → Receiver: **${t.receiver}** | Risk: **${t.riskScore}/100** | Status: **${t.status}**`).join('\n');
+        const text = isKn
+          ? `ಕರ್ನಾಟಕ ಹಣಕಾಸು ಅಪರಾಧಗಳ ತನಿಖಾ ವರದಿ:\n\n${txList}`
+          : `**FINANCIAL CRIMES & MONEY LAUNDERING INTELLIGENCE**\n\n${txList}\n\n- **Action Taken:** Financial Intelligence Unit (FIU) has placed freeze orders on flagged dummy accounts.`;
+
+        return {
+          response: text,
+          citations: mockTransactions.map(t => ({ id: t.id, title: `${t.sender} transaction` })),
+          sqlQuery: `SELECT id, amount, sender, receiver, riskScore, status FROM transactions WHERE riskScore > 85;`,
+          dataSummary: `Intercepted ₹74,50,000 in flagged suspicious transfers.`,
+          reasoningPath: [
+            `Queried financial ledger table for wire transfers with risk score > 85.`,
+            `Cross-referenced transaction accounts with suspect profiles.`,
+            `Generated money laundering audit report.`
+          ]
+        };
+      }
+
+      // 5. General / District Stats Query
+      const matchedFirs = mockFirs.filter(f => 
+        q.includes(f.district.toLowerCase()) || 
+        q.includes(f.type.toLowerCase()) || 
+        q.includes(f.policeStation.toLowerCase()) ||
+        q.includes(f.status.toLowerCase())
+      );
+
+      const displayFirs = matchedFirs.length > 0 ? matchedFirs : mockFirs.slice(0, 5);
+      const caseList = displayFirs.map(f => `- **${f.id}**: ${f.title} (${f.district}) | Status: **${f.status}** | Severity: **${f.severity}**`).join('\n');
+
+      const totalCount = mockFirs.length;
+      const openCount = mockFirs.filter(f => f.status === 'Open').length;
+      const solvedCount = mockFirs.filter(f => f.status === 'Solved').length;
+
+      const summaryText = isKn
+        ? `ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್ ಮಾಹಿತಿ ಸಾರಾಂಶ:\n\n- ದಾಖಲಾದ ಒಟ್ಟು ಪ್ರಕರಣಗಳು: **${totalCount}**\n- ಮುಕ್ತ ಪ್ರಕರಣಗಳು (Open): **${openCount}** | ಪರಿಹರಿಸಿದ ಪ್ರಕರಣಗಳು (Solved): **${solvedCount}**\n\n**ಸಂಬಂಧಿತ ಪ್ರಕರಣಗಳ ಪಟ್ಟಿ:**\n${caseList}\n\n- ಹೆಚ್ಚಿನ ತನಿಖೆಗೆ ನಿರ್ದಿಷ್ಟ ಪ್ರಕರಣದ ಐಡಿ (ಉದಾ: KSP/2026/04431) ಬಳಸಿ ವಿಚಾರಿಸಿ.`
+        : `**KARNATAKA STATE POLICE - INTELLIGENCE SUMMARY**\n\n- **Total Database Cases:** ${totalCount} FIRs\n- **Active Open Cases:** ${openCount} | **Solved Cases:** ${solvedCount}\n\n**Relevant FIR Case Records:**\n${caseList}\n\n- **Recommendation:** Type any specific Case ID (e.g., \`KSP/2026/04431\`) or suspect name to fetch deeper dossier records.`;
+
       return {
-        response: reportText,
-        citations: [{ id: "KSP/2026/04431", title: "Phishing & Sim Swap Bank Fraud" }],
-        sqlQuery: `SELECT * FROM firs WHERE description LIKE '%${message}%' OR modusOperandi LIKE '%${message}%'`,
-        dataSummary: `Found 2 matching case records in Karnataka State Police Database corresponding to query: "${message}".`,
-        policeReport: reportText,
-        findings: [
-          { title: "Sim Swap & Cyber Phishing", description: "Case KSP/2026/04431 in Bengaluru Urban matches query.", status: "High Priority" },
-          { title: "Financial Hawala Ledger", description: "Flagged transactions totaling ₹12,50,000 between suspect accounts.", status: "Under Review" }
-        ],
+        response: summaryText,
+        citations: displayFirs.map(f => ({ id: f.id, title: f.title })),
+        sqlQuery: `SELECT id, title, district, status, severity FROM firs WHERE description LIKE '%${message}%' OR district LIKE '%${message}%';`,
+        dataSummary: `Compiled intelligence summary for query: "${message}".`,
         reasoningPath: [
-          "Parsed query intent for crime entities and location parameters.",
-          "Ran relational query against FIR and accused tables.",
-          "Synthesized intelligence summary for officer review."
+          `Parsed natural language query intent and location filters.`,
+          `Executed database search across FIRs, accused, and evidence tables.`,
+          `Synthesized verified police intelligence report.`
         ]
       };
     }

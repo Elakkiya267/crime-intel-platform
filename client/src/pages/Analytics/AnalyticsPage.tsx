@@ -58,38 +58,29 @@ Command Officer Seal: Karnataka State Police Intelligence Cell
 
   return (
     <div className="flex h-full flex-col bg-[#F8FAFC]">
-      {/* Analytics Header */}
-      <div className="border-b border-[#E2E8F0] bg-white px-4 sm:px-6 py-4 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center justify-between">
+      {/* Analytics Header with Responsive Wrap */}
+      <div className="border-b border-[#E2E8F0] bg-white px-4 py-3 shadow-sm shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary-600 animate-pulse shrink-0" />
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-slate-800 font-sans flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary-600 animate-pulse" />
-                <span>Analytics & Threat Intelligence Hub</span>
+              <h1 className="text-base sm:text-lg font-bold text-slate-800 leading-tight">
+                Analytics & Threat Intelligence Hub
               </h1>
-              <p className="text-xs text-slate-500 font-medium hidden sm:block">
+              <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
                 Consolidated spatial densities, money laundering networks, and predictive warnings.
               </p>
             </div>
-            
-            <button
-              onClick={handleDownloadOverallAnalytics}
-              className="flex md:hidden items-center gap-1.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 text-xs font-bold shadow-soft transition shrink-0"
-              title="Download Analytics Report"
-            >
-              <Download className="h-3.5 w-3.5" />
-              <span>Report</span>
-            </button>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Tab Switcher */}
-            <div className="rounded-2xl border border-slate-200 p-1 flex bg-slate-50 overflow-x-auto shrink-0 shadow-inner">
+            <div className="rounded-xl border border-slate-200 p-1 flex bg-slate-50 overflow-x-auto max-w-full shadow-inner">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabId)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all duration-200 ${
                     activeTab === tab.id
                       ? 'bg-primary-600 text-white shadow-soft'
                       : 'text-slate-600 hover:text-slate-800 hover:bg-slate-200/50'
@@ -101,13 +92,15 @@ Command Officer Seal: Karnataka State Police Intelligence Cell
               ))}
             </div>
 
-            {/* Desktop Download Report Button */}
+            {/* Download Report Button */}
             <button
               onClick={handleDownloadOverallAnalytics}
-              className="hidden md:flex items-center gap-1.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 text-xs font-bold shadow-soft transition shrink-0"
+              className="flex items-center gap-1.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 text-xs font-bold shadow-soft transition shrink-0"
+              title="Download Overall Analytics Report"
             >
-              <Download className="h-4 w-4" />
-              <span>Download Overall Analytics Report</span>
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Download Overall Analytics Report</span>
+              <span className="sm:hidden">Report</span>
             </button>
           </div>
         </div>
