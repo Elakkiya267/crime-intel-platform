@@ -41,8 +41,9 @@ export default function LoginPage() {
         localStorage.setItem('ksp-user-name', data.user.name);
       }
       
-      // Full page redirect to home to refresh application state & route guards
-      window.location.href = '/';
+      // Redirect within HashRouter
+      window.location.hash = '#/';
+      window.location.reload();
     } catch (err: any) {
       setError(err.message || 'Authentication failed. Make sure your credentials are correct.');
     } finally {

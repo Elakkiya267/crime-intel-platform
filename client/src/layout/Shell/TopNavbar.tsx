@@ -10,7 +10,8 @@ export default function TopNavbar() {
     localStorage.removeItem('ksp-token');
     localStorage.removeItem('ksp-user-role');
     localStorage.removeItem('ksp-user-name');
-    window.location.href = '/login';
+    window.location.hash = '#/login';
+    window.location.reload();
   };
 
   const [darkMode, setDarkMode] = React.useState(() => {
